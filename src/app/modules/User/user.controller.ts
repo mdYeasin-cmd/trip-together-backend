@@ -10,13 +10,27 @@ const registerUser = catchAsync(async (req: Request, res: Response) => {
   const result = await UserServices.registerUserIntoDB(data);
 
   sendResponse(res, {
-    statusCode: httpStatus.OK,
+    statusCode: httpStatus.CREATED,
     success: true,
     message: "User registered successfully",
     data: result,
   });
 });
 
+const loginUser = catchAsync(async (req: Request, res: Response) => {
+  const data = req.body;
+
+  const result = await UserServices.loginUserIntoDB(data);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "User logged in successfully",
+    data: result,
+  });
+});
+
 export const UserControllers = {
   registerUser,
+  loginUser,
 };

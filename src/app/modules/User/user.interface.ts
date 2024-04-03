@@ -10,3 +10,8 @@ export interface IProfile {
   bio: string;
   age: number;
 }
+
+export interface ILoginCredentials {
+  email: string;
+  password: string;
+}
