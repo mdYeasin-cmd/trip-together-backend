@@ -1,6 +1,13 @@
+import { Server } from "http";
 import app from "./app";
 import config from "./app/config";
 
-app.listen(config.port, () => {
-  console.log(`Travel Buddy Finder server listening on port ${config.port}`);
-});
+let server: Server;
+
+async function main() {
+  server = app.listen(config.port, () => {
+    console.log("App is listen on port ", config.port);
+  });
+}
+
+main();
