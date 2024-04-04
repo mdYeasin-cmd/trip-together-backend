@@ -10,4 +10,6 @@ router.post("/login", UserControllers.loginUser);
 
 router.get("/profile", auth(), UserControllers.getMyProfile);
 
+router.put("/profile", auth(), UserControllers.updateMyProfile);
+
 export const UserRoutes = router;

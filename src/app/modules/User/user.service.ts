@@ -89,8 +89,27 @@ const getMyProfileFromDB = async (userId: string): Promise<Partial<User>> => {
   return restUserData;
 };
 
+const updateMyProfileIntoDB = async (
+  userId: string,
+  data: Partial<User>
+): Promise<Partial<User>> => {
+  await prisma.user.findUniqueOrThrow({
+    where: { id: userId },
+  });
+
+  const result = await prisma.user.update({
+    where: { id: userId },
+    data,
+  });
+
+  const { password, ...restUserData } = result;
+
+  return restUserData;
+};
+
 export const UserServices = {
   registerUserIntoDB,
   loginUserIntoDB,
   getMyProfileFromDB,
+  updateMyProfileIntoDB,
 };
