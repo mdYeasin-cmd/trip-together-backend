@@ -38,7 +38,14 @@ const registerUserIntoDB = async (data: IUserData): Promise<Partial<User>> => {
   return restUserData;
 };
 
-const loginUserIntoDB = async (data: ILoginCredentials) => {
+const loginUserIntoDB = async (
+  data: ILoginCredentials
+): Promise<{
+  id: string;
+  name: string;
+  email: string;
+  token: string;
+}> => {
   const userData = await prisma.user.findUniqueOrThrow({
     where: {
       email: data.email,
@@ -72,7 +79,18 @@ const loginUserIntoDB = async (data: ILoginCredentials) => {
   };
 };
 
+const getMyProfileFromDB = async (userId: string): Promise<Partial<User>> => {
+  const result = await prisma.user.findUniqueOrThrow({
+    where: { id: userId },
+  });
+
+  const { password, ...restUserData } = result;
+
+  return restUserData;
+};
+
 export const UserServices = {
   registerUserIntoDB,
   loginUserIntoDB,
+  getMyProfileFromDB,
 };
