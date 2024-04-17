@@ -10,4 +10,10 @@ router.get(
   TravelBuddyControllers.getTravelBuddiesByTripId
 );
 
+router.put(
+  "/travel-buddies/:buddyId/respond",
+  auth(),
+  TravelBuddyControllers.respondTravelBuddyRequest
+);
+
 export const TravelBuddyRoutes = router;

@@ -21,6 +21,26 @@ const getTravelBuddiesByTripId = catchAsync(
   }
 );
 
+const respondTravelBuddyRequest = catchAsync(
+  async (req: Request, res: Response) => {
+    const { buddyId } = req.params;
+    const data = req.body;
+
+    const result = await TravelBuddyServices.respondTravelBuddyRequestIntoDB(
+      buddyId,
+      data
+    );
+
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "Travel buddy request responded successfully",
+      data: result,
+    });
+  }
+);
+
 export const TravelBuddyControllers = {
   getTravelBuddiesByTripId,
+  respondTravelBuddyRequest,
 };
