@@ -3,6 +3,7 @@ import httpStatus from "http-status";
 import globalErrorHandler from "./app/middlewares/globalErrorHandler";
 import { UserRoutes } from "./app/modules/User/user.route";
 import { TripRoutes } from "./app/modules/Trip/trip.route";
+import { TravelBuddyRoutes } from "./app/modules/TravelBuddy/travelBuddy.route";
 
 // application configurations
 const app: Application = express();
@@ -13,6 +14,7 @@ app.use(express.json());
 // routes
 app.use("/api", UserRoutes);
 app.use("/api", TripRoutes);
+app.use("/api", TravelBuddyRoutes);
 
 // test route
 app.get("/", (req: Request, res: Response) => {
