@@ -18,6 +18,41 @@ const createATrip = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const getAllTrips = catchAsync(async (req: Request, res: Response) => {
+  // const userId = req.user.id;
+  // const data = req.body;
+
+  const result = await TripServices.getAllTripsFromDB();
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Trips retrieved successfully",
+    data: result,
+  });
+});
+
+const sendTravelBuddyRequest = catchAsync(
+  async (req: Request, res: Response) => {
+    const { tripId } = req.params;
+    const data = req.body;
+
+    const result = await TripServices.sendTravelBuddyRequestIntoDB(
+      tripId,
+      data
+    );
+
+    sendResponse(res, {
+      statusCode: httpStatus.CREATED,
+      success: true,
+      message: "Travel buddy request sent successfully",
+      data: result,
+    });
+  }
+);
+
 export const TripControllers = {
   createATrip,
+  getAllTrips,
+  sendTravelBuddyRequest,
 };
