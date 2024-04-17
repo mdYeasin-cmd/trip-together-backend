@@ -3,6 +3,7 @@ import catchAsync from "../../utils/catchAsync";
 import { UserServices } from "./user.service";
 import sendResponse from "../../utils/sendResponse";
 import httpStatus from "http-status";
+import pick from "../../utils/pick";
 
 const registerUser = catchAsync(async (req: Request, res: Response) => {
   const data = req.body;
@@ -47,7 +48,12 @@ const updateMyProfile = catchAsync(async (req: Request, res: Response) => {
   const userId = req.user.id;
   const data = req.body;
 
-  const result = await UserServices.updateMyProfileIntoDB(userId, data);
+  const updateableProperty = pick(data, ["name", "email"]);
+
+  const result = await UserServices.updateMyProfileIntoDB(
+    userId,
+    updateableProperty
+  );
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
