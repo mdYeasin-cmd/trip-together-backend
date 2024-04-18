@@ -27,15 +27,16 @@ const respondTravelBuddyRequestIntoDB = async (
     status: TravelBuddyRequestStatus;
   }
 ) => {
-  await prisma.travelBuddyRequest.findUniqueOrThrow({
+  const buddyRequest = await prisma.travelBuddyRequest.findFirstOrThrow({
     where: {
-      id: buddyId,
+      userId: buddyId,
+      tripId: data.tripId,
     },
   });
 
   const result = await prisma.travelBuddyRequest.update({
     where: {
-      id: buddyId,
+      id: buddyRequest.id,
     },
     data: {
       status: data.status,
