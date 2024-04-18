@@ -27,6 +27,12 @@ const sendTravelBuddyRequestIntoDB = async (
     userId: string;
   }
 ) => {
+  await prisma.trip.findUniqueOrThrow({
+    where: {
+      id: tripId,
+    },
+  });
+
   await prisma.user.findUniqueOrThrow({
     where: {
       id: data.userId,
