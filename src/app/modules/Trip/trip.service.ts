@@ -1,6 +1,14 @@
-import { TravelBuddyRequestStatus, Trip } from "@prisma/client";
+import { Prisma, TravelBuddyRequestStatus, Trip } from "@prisma/client";
 import prisma from "../../db/prisma";
 import { ITripCreateData } from "./trip.interface";
+import { paginationHelper } from "../../utils/paginationHelper";
+
+type IPaginationOptions = {
+  page?: number;
+  limit?: number;
+  sortBy?: string | undefined;
+  sortOrder?: string | undefined;
+};
 
 const createATripIntoDB = async (
   userId: string,
@@ -15,10 +23,85 @@ const createATripIntoDB = async (
   return result;
 };
 
-const getAllTripsFromDB = async () => {
-  const result = await prisma.trip.findMany();
+const getAllTripsFromDB = async (params: any, options: IPaginationOptions) => {
+  const { searchTerm, minBudget, maxBudget, ...filterData } = params;
+  const { page, limit, skip, sortBy, sortOrder } =
+    paginationHelper.calculatePagination(options);
 
-  return result;
+  const andConditions: Prisma.TripWhereInput[] = [];
+
+  if (params.minBudget) {
+    filterData.budget = {
+      gte: Number(minBudget),
+    };
+  }
+
+  if (params.maxBudget) {
+    filterData.budget = {
+      lte: Number(maxBudget),
+    };
+  }
+
+  if (params.minBudget && params.maxBudget) {
+    filterData.budget = {
+      gte: Number(minBudget),
+      lte: Number(maxBudget),
+    };
+  }
+
+  if (params.searchTerm) {
+    andConditions.push({
+      OR: ["destination"].map((field) => ({
+        [field]: {
+          contains: params.searchTerm,
+          mode: "insensitive",
+        },
+      })),
+    });
+  }
+
+  if (Object.keys(filterData).length > 0) {
+    andConditions.push({
+      AND: Object.keys(filterData).map((key) => {
+        if (key === "budget") {
+          return {
+            [key]: filterData[key],
+          };
+        } else {
+          return {
+            [key]: {
+              equals: (filterData as any)[key],
+            },
+          };
+        }
+      }),
+    });
+  }
+
+  const whereConditons: Prisma.TripWhereInput =
+    andConditions.length > 0 ? { AND: andConditions } : {};
+
+  const result = await prisma.trip.findMany({
+    where: whereConditons,
+    skip,
+    take: limit,
+    orderBy: {
+      [sortBy]: sortOrder,
+    },
+  });
+
+  const total = await prisma.trip.count({
+    where: whereConditons,
+  });
+
+  return {
+    meta: {
+      limit,
+      page,
+      total,
+    },
+    data: result,
+  };
 };
 
 const sendTravelBuddyRequestIntoDB = async (

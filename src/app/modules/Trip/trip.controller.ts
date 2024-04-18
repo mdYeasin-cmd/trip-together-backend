@@ -3,6 +3,7 @@ import catchAsync from "../../utils/catchAsync";
 import { TripServices } from "./trip.service";
 import sendResponse from "../../utils/sendResponse";
 import httpStatus from "http-status";
+import pick from "../../utils/pick";
 
 const createATrip = catchAsync(async (req: Request, res: Response) => {
   const userId = req.user.id;
@@ -19,10 +20,17 @@ const createATrip = catchAsync(async (req: Request, res: Response) => {
 });
 
 const getAllTrips = catchAsync(async (req: Request, res: Response) => {
-  // const userId = req.user.id;
-  // const data = req.body;
+  const filters = pick(req.query, [
+    "destination",
+    "startDate",
+    "endDate",
+    "minBudget",
+    "maxBudget",
+    "searchTerm",
+  ]);
+  const options = pick(req.query, ["page", "limit", "sortBy", "sortOrder"]);
 
-  const result = await TripServices.getAllTripsFromDB();
+  const result = await TripServices.getAllTripsFromDB(filters, options);
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
