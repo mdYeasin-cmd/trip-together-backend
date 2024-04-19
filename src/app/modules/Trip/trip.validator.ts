@@ -3,7 +3,8 @@ import z from "zod";
 const createATripValidationSchema = z.object({
   body: z.object({
     destination: z.string({
-      required_error: "Destination is required",
+      required_error: "Destination is required.",
+      invalid_type_error: "Destination must be a string.",
     }),
     startDate: z.string({
       required_error: "Start date is required",
@@ -13,6 +14,7 @@ const createATripValidationSchema = z.object({
     }),
     budget: z.number({
       required_error: "Budget is required",
+      invalid_type_error: "Budget must be a number.",
     }),
     activities: z
       .array(

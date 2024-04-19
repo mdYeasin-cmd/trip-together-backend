@@ -1,4 +1,6 @@
 import jwt, { JwtPayload, Secret } from "jsonwebtoken";
+import ApiError from "../errors/ApiError";
+import httpStatus from "http-status";
 
 const generateToken = (payload: any, secret: Secret, expiresIn: string) => {
   const token = jwt.sign(payload, secret, {
@@ -10,7 +12,11 @@ const generateToken = (payload: any, secret: Secret, expiresIn: string) => {
 };
 
 const verifyToken = (token: string, secret: Secret) => {
-  return jwt.verify(token, secret) as JwtPayload;
+  try {
+    return jwt.verify(token, secret) as JwtPayload;
+  } catch (error) {
+    throw new ApiError(httpStatus.BAD_REQUEST, "Unauthorized Access");
+  }
 };
 
 export const jwtHelpers = {
