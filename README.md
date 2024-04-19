@@ -2,7 +2,11 @@
 
 ### Project Live URL
 
+- https://travel-buddy-finder-server.vercel.app
+
 ### Api documentation link
+
+- https://documenter.getpostman.com/view/24488335/2sA3BoYqse
 
 ### Way of run the project in local
 
