@@ -39,6 +39,37 @@ const registerUserIntoDB = async (data: IUserData): Promise<Partial<User>> => {
   return restUserData;
 };
 
+const createAdminIntoDB = async (data: IUserData): Promise<Partial<User>> => {
+  const { name, email, password } = data;
+
+  const hashedPassword: string = await bcrypt.hash(password, 12);
+
+  const userData = {
+    name,
+    email,
+    password: hashedPassword,
+    role: UserRole.ADMIN,
+  };
+
+  const result = await prisma.$transaction(async (transactionClient) => {
+    const user = await transactionClient.user.create({
+      data: userData,
+    });
+
+    await transactionClient.userProfile.create({
+      data: {
+        userId: user.id,
+      },
+    });
+
+    return user;
+  });
+
+  const { password: p, ...restUserData } = result;
+
+  return restUserData;
+};
+
 const loginUserIntoDB = async (
   data: ILoginCredentials
 ): Promise<{
@@ -112,6 +143,7 @@ const updateMyProfileIntoDB = async (
 
 export const UserServices = {
   registerUserIntoDB,
+  createAdminIntoDB,
   loginUserIntoDB,
   getMyProfileFromDB,
   updateMyProfileIntoDB,

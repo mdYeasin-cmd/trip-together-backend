@@ -8,6 +8,14 @@ const registerUserValidationSchema = z.object({
   }),
 });
 
+const createAdminValidationSchema = z.object({
+  body: z.object({
+    name: z.string(),
+    email: z.string().email(),
+    password: z.string(),
+  }),
+});
+
 const updateUserValidationSchema = z.object({
   body: z.object({
     name: z.string().optional(),
@@ -24,6 +32,7 @@ const loginValidationSchema = z.object({
 
 export const UserValidators = {
   registerUserValidationSchema,
+  createAdminValidationSchema,
   loginValidationSchema,
   updateUserValidationSchema,
 };

@@ -6,7 +6,7 @@ import { jwtHelpers } from "../utils/jwtHelpers";
 import config from "../config";
 import prisma from "../db/prisma";
 
-const auth = () => {
+const auth = (...roles: string[]) => {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
       const token = req.headers.authorization;
@@ -34,6 +34,10 @@ const auth = () => {
       }
 
       req.user = verifiedUser;
+
+      if (roles.length && !roles.includes(verifiedUser.role)) {
+        throw new ApiError(httpStatus.FORBIDDEN, "Forbidden!");
+      }
 
       return next();
     } catch (error) {
