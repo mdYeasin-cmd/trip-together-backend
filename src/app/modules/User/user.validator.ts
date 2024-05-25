@@ -1,16 +1,10 @@
 import z from "zod";
 
-const registerProfileSchema = z.object({
-  bio: z.string(),
-  age: z.number(),
-});
-
 const registerUserValidationSchema = z.object({
   body: z.object({
     name: z.string(),
     email: z.string().email(),
     password: z.string(),
-    profile: registerProfileSchema,
   }),
 });
 

@@ -18,6 +18,9 @@ model User {
   name                String
   email               String               @unique
   password            String
+  needPasswordChange  Boolean              @default(true)
+  role                UserRole
+  status              UserStatus           @default(ACTIVE)
   createdAt           DateTime             @default(now())
   updatedAt           DateTime             @updatedAt
   userProfile         UserProfile?
@@ -30,8 +33,9 @@ model User {
 model UserProfile {
   id        String   @id @default(uuid())
   userId    String   @unique
-  bio       String
-  age       Int
+  bio       String?
+  age       Int?
+  gender    Gender?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -75,4 +79,21 @@ enum TravelBuddyRequestStatus {
   PENDING
   APPROVED
   REJECTED
+}
+
+enum UserRole {
+  SUPER_ADMIN
+  ADMIN
+  TRAVELER
+}
+
+enum UserStatus {
+  ACTIVE
+  BLOCKED
+  DELETED
+}
+
+enum Gender {
+  MALE
+  FEMALE
 }
