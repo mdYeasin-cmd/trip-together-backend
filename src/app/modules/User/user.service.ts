@@ -79,11 +79,15 @@ const loginUserIntoDB = async (
   role: string;
   token: string;
 }> => {
-  const userData = await prisma.user.findUniqueOrThrow({
+  const userData = await prisma.user.findUnique({
     where: {
       email: data.email,
     },
   });
+
+  if (!userData) {
+    throw new ApiError(httpStatus.NOT_FOUND, "User doesn't exist.");
+  }
 
   const isCorrectPassword: boolean = await bcrypt.compare(
     data.password,
