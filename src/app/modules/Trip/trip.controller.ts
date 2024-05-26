@@ -59,8 +59,23 @@ const sendTravelBuddyRequest = catchAsync(
   }
 );
 
+const deleteATrip = catchAsync(async (req: Request, res: Response) => {
+  const userId = req.user.id;
+  const { tripId } = req.params;
+
+  const result = await TripServices.deleteATripFromDB(userId, tripId);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Trip is deleted successfully",
+    data: result,
+  });
+});
+
 export const TripControllers = {
   createATrip,
   getAllTrips,
   sendTravelBuddyRequest,
+  deleteATrip,
 };

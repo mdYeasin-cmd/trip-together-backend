@@ -21,6 +21,7 @@ model User {
   needPasswordChange  Boolean              @default(true)
   role                UserRole
   status              UserStatus           @default(ACTIVE)
+  isDeleted           Boolean              @default(false)
   createdAt           DateTime             @default(now())
   updatedAt           DateTime             @updatedAt
   userProfile         UserProfile?
@@ -47,11 +48,14 @@ model UserProfile {
 model Trip {
   id                  String               @id @default(uuid())
   userId              String
+  photos              Json
   destination         String
-  startDate           String
-  endDate             String
+  travelType          String
   budget              Float
-  activities          String[]
+  startDate           DateTime
+  endDate             DateTime
+  description         String
+  isDeleted           Boolean              @default(false)
   createdAt           DateTime             @default(now())
   updatedAt           DateTime             @updatedAt
   travelBuddyRequests TravelBuddyRequest[]
@@ -66,6 +70,7 @@ model TravelBuddyRequest {
   tripId    String
   userId    String
   status    TravelBuddyRequestStatus
+  isDeleted Boolean                  @default(false)
   createdAt DateTime                 @default(now())
   updatedAt DateTime                 @updatedAt
 

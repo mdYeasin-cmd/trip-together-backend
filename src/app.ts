@@ -4,12 +4,14 @@ import globalErrorHandler from "./app/middlewares/globalErrorHandler";
 import { UserRoutes } from "./app/modules/User/user.route";
 import { TripRoutes } from "./app/modules/Trip/trip.route";
 import { TravelBuddyRoutes } from "./app/modules/TravelBuddy/travelBuddy.route";
+import cors from "cors";
 
 // application configurations
 const app: Application = express();
 
 // parsers
 app.use(express.json());
+app.use(cors());
 
 // routes
 app.use("/api", UserRoutes);

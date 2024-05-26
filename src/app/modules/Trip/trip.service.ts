@@ -2,6 +2,8 @@ import { Prisma, TravelBuddyRequestStatus, Trip } from "@prisma/client";
 import prisma from "../../db/prisma";
 import { ITripCreateData } from "./trip.interface";
 import { paginationHelper } from "../../utils/paginationHelper";
+import ApiError from "../../errors/ApiError";
+import httpStatus from "http-status";
 
 type IPaginationOptions = {
   page?: number;
@@ -15,6 +17,9 @@ const createATripIntoDB = async (
   data: ITripCreateData
 ): Promise<Trip> => {
   data.userId = userId;
+
+  data.startDate = new Date(data.startDate);
+  data.endDate = new Date(data.endDate);
 
   const result = await prisma.trip.create({
     data,
@@ -81,6 +86,8 @@ const getAllTripsFromDB = async (params: any, options: IPaginationOptions) => {
   const whereConditons: Prisma.TripWhereInput =
     andConditions.length > 0 ? { AND: andConditions } : {};
 
+  whereConditons.isDeleted = false;
+
   const result = await prisma.trip.findMany({
     where: whereConditons,
     skip,
@@ -133,8 +140,34 @@ const sendTravelBuddyRequestIntoDB = async (
   return result;
 };
 
+const deleteATripFromDB = async (userId: string, tripId: string) => {
+  const trip = await prisma.trip.findUnique({
+    where: {
+      id: tripId,
+      userId: userId,
+    },
+  });
+
+  if (!trip) {
+    throw new ApiError(httpStatus.NOT_FOUND, "This trip is not found!");
+  }
+
+  const result = await prisma.trip.update({
+    where: {
+      id: tripId,
+      userId,
+    },
+    data: {
+      isDeleted: true,
+    },
+  });
+
+  return result;
+};
+
 export const TripServices = {
   createATripIntoDB,
   getAllTripsFromDB,
   sendTravelBuddyRequestIntoDB,
+  deleteATripFromDB,
 };

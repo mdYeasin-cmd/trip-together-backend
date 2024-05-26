@@ -1,8 +1,10 @@
 export interface ITripCreateData {
   userId: string;
+  photos: string[];
   destination: string;
-  startDate: string;
-  endDate: string;
+  travelType: string;
   budget: number;
-  activities: string[];
+  startDate: Date;
+  endDate: Date;
+  description: string;
 }
