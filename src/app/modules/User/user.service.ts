@@ -145,10 +145,22 @@ const updateMyProfileIntoDB = async (
   return restUserData;
 };
 
+const getAllUsersFromDB = async (): Promise<User[]> => {
+  const result = await prisma.user.findMany({
+    where: {
+      role: UserRole.TRAVELER,
+      isDeleted: false,
+    },
+  });
+
+  return result;
+};
+
 export const UserServices = {
   registerUserIntoDB,
   createAdminIntoDB,
   loginUserIntoDB,
   getMyProfileFromDB,
   updateMyProfileIntoDB,
+  getAllUsersFromDB,
 };

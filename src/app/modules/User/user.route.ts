@@ -15,7 +15,7 @@ router.post(
 
 router.post(
   "/create-admin",
-  // auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
+  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
   validatedRequest(UserValidators.createAdminValidationSchema),
   UserControllers.createAdmin
 );
@@ -33,6 +33,12 @@ router.put(
   auth(),
   validatedRequest(UserValidators.updateUserValidationSchema),
   UserControllers.updateMyProfile
+);
+
+router.get(
+  "/users",
+  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
+  UserControllers.getAllUsers
 );
 
 export const UserRoutes = router;
