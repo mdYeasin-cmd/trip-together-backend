@@ -1,4 +1,4 @@
-import { User, UserRole } from "@prisma/client";
+import { User, UserRole, UserStatus } from "@prisma/client";
 import bcrypt from "bcrypt";
 import { ILoginCredentials, IUserData } from "./user.interface";
 import prisma from "../../db/prisma";
@@ -156,6 +156,39 @@ const getAllUsersFromDB = async (): Promise<User[]> => {
   return result;
 };
 
+const chnageUserStatusIntoDB = async (data: {
+  userId: string;
+  status: UserStatus;
+}) => {
+  const user = await prisma.user.findUnique({
+    where: {
+      id: data.userId,
+    },
+  });
+
+  if (!user) {
+    throw new ApiError(httpStatus.NOT_FOUND, "User doesn't exist.");
+  }
+
+  if (user.status === data.status) {
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      `User is already ${data.status}.`
+    );
+  }
+
+  const result = await prisma.user.update({
+    where: {
+      id: data.userId,
+    },
+    data: {
+      status: data.status,
+    },
+  });
+
+  return result;
+};
+
 export const UserServices = {
   registerUserIntoDB,
   createAdminIntoDB,
@@ -163,4 +196,5 @@ export const UserServices = {
   getMyProfileFromDB,
   updateMyProfileIntoDB,
   getAllUsersFromDB,
+  chnageUserStatusIntoDB,
 };

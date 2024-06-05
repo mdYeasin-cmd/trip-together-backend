@@ -87,6 +87,19 @@ const getAllUsers = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const chnageUserStatus = catchAsync(async (req: Request, res: Response) => {
+  const statusChangeData = req.body;
+
+  const result = await UserServices.chnageUserStatusIntoDB(statusChangeData);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "User status is changed successfully",
+    data: result,
+  });
+});
+
 export const UserControllers = {
   registerUser,
   createAdmin,
@@ -94,4 +107,5 @@ export const UserControllers = {
   getMyProfile,
   updateMyProfile,
   getAllUsers,
+  chnageUserStatus,
 };

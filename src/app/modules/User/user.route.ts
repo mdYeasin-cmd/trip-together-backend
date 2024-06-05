@@ -41,4 +41,10 @@ router.get(
   UserControllers.getAllUsers
 );
 
+router.post(
+  "/change-user-status",
+  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
+  UserControllers.chnageUserStatus
+);
+
 export const UserRoutes = router;
