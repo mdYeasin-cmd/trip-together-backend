@@ -41,7 +41,7 @@ router.get(
   UserControllers.getAllUsers
 );
 
-router.post(
+router.patch(
   "/change-user-status",
   auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
   UserControllers.chnageUserStatus

@@ -145,11 +145,26 @@ const updateMyProfileIntoDB = async (
   return restUserData;
 };
 
-const getAllUsersFromDB = async (): Promise<User[]> => {
+const getAllUsersFromDB = async (): Promise<
+  Pick<User, Exclude<keyof User, "password" | "needPasswordChange">>[]
+> => {
   const result = await prisma.user.findMany({
     where: {
       role: UserRole.TRAVELER,
       isDeleted: false,
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      role: true,
+      status: true,
+      isDeleted: true,
+      createdAt: true,
+      updatedAt: true,
     },
   });
 
