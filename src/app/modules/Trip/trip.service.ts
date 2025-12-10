@@ -111,28 +111,38 @@ const getAllTripsFromDB = async (params: any, options: IPaginationOptions) => {
   };
 };
 
-const sendTravelBuddyRequestIntoDB = async (
-  tripId: string,
-  data: {
-    userId: string;
-  }
-) => {
-  await prisma.trip.findUniqueOrThrow({
+const sendTravelBuddyRequestIntoDB = async (tripId: string, userId: string) => {
+  const trip = await prisma.trip.findUnique({
     where: {
       id: tripId,
     },
   });
 
-  await prisma.user.findUniqueOrThrow({
+  if (!trip) {
+    throw new ApiError(httpStatus.NOT_FOUND, "This trip is not found!");
+  }
+
+  const user = await prisma.user.findUnique({
     where: {
-      id: data.userId,
+      id: userId,
     },
   });
+
+  if (!user) {
+    throw new ApiError(httpStatus.NOT_FOUND, "User doesn't exist.");
+  }
+
+  if (trip.userId === userId) {
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      "You can't send request to yourself."
+    );
+  }
 
   const result = await prisma.travelBuddyRequest.create({
     data: {
       tripId,
-      userId: data.userId,
+      userId: userId,
       status: TravelBuddyRequestStatus.PENDING,
     },
   });

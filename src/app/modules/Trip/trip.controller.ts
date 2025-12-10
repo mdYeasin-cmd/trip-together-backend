@@ -43,11 +43,11 @@ const getAllTrips = catchAsync(async (req: Request, res: Response) => {
 const sendTravelBuddyRequest = catchAsync(
   async (req: Request, res: Response) => {
     const { tripId } = req.params;
-    const data = req.body;
+    const { userId } = req.body;
 
     const result = await TripServices.sendTravelBuddyRequestIntoDB(
       tripId,
-      data
+      userId
     );
 
     sendResponse(res, {
