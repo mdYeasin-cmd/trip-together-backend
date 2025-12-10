@@ -1,21 +1,5 @@
 import z from "zod";
 
-const registerUserValidationSchema = z.object({
-  body: z.object({
-    name: z.string(),
-    email: z.string().email(),
-    password: z.string(),
-  }),
-});
-
-const createAdminValidationSchema = z.object({
-  body: z.object({
-    name: z.string(),
-    email: z.string().email(),
-    password: z.string(),
-  }),
-});
-
 const updateUserValidationSchema = z.object({
   body: z.object({
     name: z.string().optional(),
@@ -23,16 +7,6 @@ const updateUserValidationSchema = z.object({
   }),
 });
 
-const loginValidationSchema = z.object({
-  body: z.object({
-    email: z.string().email(),
-    password: z.string(),
-  }),
-});
-
 export const UserValidators = {
-  registerUserValidationSchema,
-  createAdminValidationSchema,
-  loginValidationSchema,
   updateUserValidationSchema,
 };

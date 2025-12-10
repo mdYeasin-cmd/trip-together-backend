@@ -1,48 +1,9 @@
-import { Request, Response } from "express";
-import catchAsync from "../../utils/catchAsync";
-import { UserServices } from "./user.service";
-import sendResponse from "../../utils/sendResponse";
 import httpStatus from "http-status";
+import catchAsync from "../../utils/catchAsync";
+import sendResponse from "../../utils/sendResponse";
+import { Request, Response } from "express";
+import { UserServices } from "./user.service";
 import pick from "../../utils/pick";
-
-const registerUser = catchAsync(async (req: Request, res: Response) => {
-  const data = req.body;
-
-  const result = await UserServices.registerUserIntoDB(data);
-
-  sendResponse(res, {
-    statusCode: httpStatus.CREATED,
-    success: true,
-    message: "User registered successfully",
-    data: result,
-  });
-});
-
-const createAdmin = catchAsync(async (req: Request, res: Response) => {
-  const data = req.body;
-
-  const result = await UserServices.createAdminIntoDB(data);
-
-  sendResponse(res, {
-    statusCode: httpStatus.CREATED,
-    success: true,
-    message: "Admin is created successfully",
-    data: result,
-  });
-});
-
-const loginUser = catchAsync(async (req: Request, res: Response) => {
-  const data = req.body;
-
-  const result = await UserServices.loginUserIntoDB(data);
-
-  sendResponse(res, {
-    statusCode: httpStatus.OK,
-    success: true,
-    message: "User logged in successfully",
-    data: result,
-  });
-});
 
 const getMyProfile = catchAsync(async (req: Request, res: Response) => {
   const userId = req.user.id;
@@ -53,6 +14,19 @@ const getMyProfile = catchAsync(async (req: Request, res: Response) => {
     statusCode: httpStatus.OK,
     success: true,
     message: "User profile retrieved successfully",
+    data: result,
+  });
+});
+
+const getAllUsers = catchAsync(async (req: Request, res: Response) => {
+  const role = req.user.role;
+
+  const result = await UserServices.getAllUsersFromDB(role);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "All users retrieved successfully",
     data: result,
   });
 });
@@ -76,17 +50,6 @@ const updateMyProfile = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-const getAllUsers = catchAsync(async (req: Request, res: Response) => {
-  const result = await UserServices.getAllUsersFromDB();
-
-  sendResponse(res, {
-    statusCode: httpStatus.OK,
-    success: true,
-    message: "All users retrieved successfully",
-    data: result,
-  });
-});
-
 const chnageUserStatus = catchAsync(async (req: Request, res: Response) => {
   const statusChangeData = req.body;
 
@@ -101,11 +64,8 @@ const chnageUserStatus = catchAsync(async (req: Request, res: Response) => {
 });
 
 export const UserControllers = {
-  registerUser,
-  createAdmin,
-  loginUser,
   getMyProfile,
-  updateMyProfile,
   getAllUsers,
+  updateMyProfile,
   chnageUserStatus,
 };

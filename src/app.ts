@@ -1,10 +1,8 @@
 import express, { Application, NextFunction, Request, Response } from "express";
 import httpStatus from "http-status";
 import globalErrorHandler from "./app/middlewares/globalErrorHandler";
-import { UserRoutes } from "./app/modules/User/user.route";
-import { TripRoutes } from "./app/modules/Trip/trip.route";
-import { TravelBuddyRoutes } from "./app/modules/TravelBuddy/travelBuddy.route";
 import cors from "cors";
+import router from "./app/routes";
 
 // application configurations
 const app: Application = express();
@@ -13,10 +11,8 @@ const app: Application = express();
 app.use(express.json());
 app.use(cors());
 
-// routes
-app.use("/api", UserRoutes);
-app.use("/api", TripRoutes);
-app.use("/api", TravelBuddyRoutes);
+// application routes
+app.use("/api/v1", router);
 
 // test route
 app.get("/", (req: Request, res: Response) => {

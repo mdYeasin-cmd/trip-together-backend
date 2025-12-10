@@ -10,4 +10,5 @@ export default {
   port: process.env.PORT,
   jwt_secret: process.env.JWT_SECRET,
   expires_in: process.env.EXPIRES_IN,
+  bcrypt_salt_rounds: Number(process.env.BCRYPT_SALT_ROUNDS),
 };
