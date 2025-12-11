@@ -16,13 +16,6 @@ router.post(
 
 router.get("/", TripControllers.getAllTrips);
 
-router.post(
-  "/:tripId/request",
-  auth(),
-  validatedRequest(TripValidators.sendTravelBuddyRequestValidationSchema),
-  TripControllers.sendTravelBuddyRequest
-);
-
 router.delete(
   "/:tripId",
   auth(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.TRAVELER),

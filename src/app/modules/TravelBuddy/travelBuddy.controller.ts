@@ -7,8 +7,10 @@ import httpStatus from "http-status";
 const getTravelBuddiesByTripId = catchAsync(
   async (req: Request, res: Response) => {
     const { tripId } = req.params;
+    const userId = req.user.id;
 
     const result = await TravelBuddyServices.getTravelBuddiesByTripIdFromDB(
+      userId,
       tripId
     );
 
@@ -16,6 +18,25 @@ const getTravelBuddiesByTripId = catchAsync(
       statusCode: httpStatus.OK,
       success: true,
       message: "Potential travel buddies retrieved successfully",
+      data: result,
+    });
+  }
+);
+
+const sendTravelBuddyRequest = catchAsync(
+  async (req: Request, res: Response) => {
+    const { tripId } = req.params;
+    const { userId } = req.body;
+
+    const result = await TravelBuddyServices.sendTravelBuddyRequestIntoDB(
+      tripId,
+      userId
+    );
+
+    sendResponse(res, {
+      statusCode: httpStatus.CREATED,
+      success: true,
+      message: "Travel buddy request sent successfully",
       data: result,
     });
   }
@@ -42,5 +63,6 @@ const respondTravelBuddyRequest = catchAsync(
 
 export const TravelBuddyControllers = {
   getTravelBuddiesByTripId,
+  sendTravelBuddyRequest,
   respondTravelBuddyRequest,
 };

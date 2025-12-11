@@ -36,13 +36,6 @@ const createATripValidationSchema = z.object({
   }),
 });
 
-const sendTravelBuddyRequestValidationSchema = z.object({
-  body: z.object({
-    userId: z.string(),
-  }),
-});
-
 export const TripValidators = {
   createATripValidationSchema,
-  sendTravelBuddyRequestValidationSchema,
 };

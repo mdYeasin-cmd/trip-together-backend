@@ -3,17 +3,26 @@ import auth from "../../middlewares/auth";
 import { TravelBuddyControllers } from "./travelBuddy.controller";
 import validatedRequest from "../../middlewares/validatedRequest";
 import { TravelBuddyValidators } from "./travelBuddy.validator";
+import { UserRole } from "@prisma/client";
 
 const router = express.Router();
 
-router.get(
-  "/travel-buddies/:tripId",
+// get all travel buddies requests
+router.get("/:tripId", auth(), TravelBuddyControllers.getTravelBuddiesByTripId);
+
+// travel buddy request
+router.post(
+  "/:tripId/request",
   auth(),
-  TravelBuddyControllers.getTravelBuddiesByTripId
+  validatedRequest(
+    TravelBuddyValidators.sendTravelBuddyRequestValidationSchema
+  ),
+  TravelBuddyControllers.sendTravelBuddyRequest
 );
 
+// travel buddy respond
 router.put(
-  "/travel-buddies/:buddyId/respond",
+  "/:buddyId/respond",
   auth(),
   validatedRequest(
     TravelBuddyValidators.respondTravelBuddyRequestValidationSchema

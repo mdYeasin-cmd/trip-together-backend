@@ -11,6 +11,13 @@ const respondTravelBuddyRequestValidationSchema = z.object({
   }),
 });
 
+const sendTravelBuddyRequestValidationSchema = z.object({
+  body: z.object({
+    userId: z.string(),
+  }),
+});
+
 export const TravelBuddyValidators = {
   respondTravelBuddyRequestValidationSchema,
+  sendTravelBuddyRequestValidationSchema,
 };

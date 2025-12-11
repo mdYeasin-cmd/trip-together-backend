@@ -40,25 +40,6 @@ const getAllTrips = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-const sendTravelBuddyRequest = catchAsync(
-  async (req: Request, res: Response) => {
-    const { tripId } = req.params;
-    const { userId } = req.body;
-
-    const result = await TripServices.sendTravelBuddyRequestIntoDB(
-      tripId,
-      userId
-    );
-
-    sendResponse(res, {
-      statusCode: httpStatus.CREATED,
-      success: true,
-      message: "Travel buddy request sent successfully",
-      data: result,
-    });
-  }
-);
-
 const deleteATrip = catchAsync(async (req: Request, res: Response) => {
   const userId = req.user.id;
   const { tripId } = req.params;
@@ -76,6 +57,5 @@ const deleteATrip = catchAsync(async (req: Request, res: Response) => {
 export const TripControllers = {
   createATrip,
   getAllTrips,
-  sendTravelBuddyRequest,
   deleteATrip,
 };
