@@ -1,4 +1,10 @@
-# Travel Buddy Finder Server
+# Trip Together | Backend
+
+<p>A trip management application</p>
+
+### Important Links
+
+- [User & Admin Workflow](https://i.ibb.co.com/6JYmPDVK/User-Admin-Workflow-Diagram-for-Travel-Management-System.png)
 
 ### Project Live URL
 
