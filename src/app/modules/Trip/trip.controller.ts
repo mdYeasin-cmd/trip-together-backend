@@ -40,6 +40,19 @@ const getAllTrips = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const getATrip = catchAsync(async (req: Request, res: Response) => {
+  const tripId: string = req?.params?.tripId;
+
+  const result = await TripServices.getATripFromDB(tripId);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Trip details retrieved successfully",
+    data: result,
+  });
+});
+
 const deleteATrip = catchAsync(async (req: Request, res: Response) => {
   const userId = req.user.id;
   const { tripId } = req.params;
@@ -57,5 +70,6 @@ const deleteATrip = catchAsync(async (req: Request, res: Response) => {
 export const TripControllers = {
   createATrip,
   getAllTrips,
+  getATrip,
   deleteATrip,
 };

@@ -14,7 +14,7 @@ type IPaginationOptions = {
 
 const createATripIntoDB = async (
   userId: string,
-  data: ITripCreateData
+  data: ITripCreateData,
 ): Promise<Trip> => {
   data.userId = userId;
 
@@ -111,6 +111,16 @@ const getAllTripsFromDB = async (params: any, options: IPaginationOptions) => {
   };
 };
 
+const getATripFromDB = async (tripId: string) => {
+  const trip = await prisma.trip.findUnique({
+    where: {
+      id: tripId,
+    },
+  });
+
+  return trip;
+};
+
 const deleteATripFromDB = async (userId: string, tripId: string) => {
   const trip = await prisma.trip.findUnique({
     where: {
@@ -139,5 +149,6 @@ const deleteATripFromDB = async (userId: string, tripId: string) => {
 export const TripServices = {
   createATripIntoDB,
   getAllTripsFromDB,
+  getATripFromDB,
   deleteATripFromDB,
 };

@@ -11,15 +11,17 @@ router.post(
   "/",
   auth(UserRole.TRAVELER),
   validatedRequest(TripValidators.createATripValidationSchema),
-  TripControllers.createATrip
+  TripControllers.createATrip,
 );
 
 router.get("/", TripControllers.getAllTrips);
 
+router.get("/:tripId", TripControllers.getATrip);
+
 router.delete(
   "/:tripId",
   auth(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.TRAVELER),
-  TripControllers.deleteATrip
+  TripControllers.deleteATrip,
 );
 
 export const TripRoutes = router;
