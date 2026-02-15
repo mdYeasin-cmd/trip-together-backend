@@ -31,6 +31,19 @@ const getAllUsers = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const getATraveler = catchAsync(async (req: Request, res: Response) => {
+  const travelerId = req.params.travelerId;
+
+  const result = await UserServices.getATravelerFromDB(travelerId);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Traveler is retrieved successfully",
+    data: result,
+  });
+});
+
 const updateMyProfile = catchAsync(async (req: Request, res: Response) => {
   const userId = req.user.id;
   const data = req.body;
@@ -39,7 +52,7 @@ const updateMyProfile = catchAsync(async (req: Request, res: Response) => {
 
   const result = await UserServices.updateMyProfileIntoDB(
     userId,
-    updateableProperty
+    updateableProperty,
   );
 
   sendResponse(res, {
@@ -66,6 +79,7 @@ const chnageUserStatus = catchAsync(async (req: Request, res: Response) => {
 export const UserControllers = {
   getMyProfile,
   getAllUsers,
+  getATraveler,
   updateMyProfile,
   chnageUserStatus,
 };

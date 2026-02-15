@@ -14,7 +14,7 @@ const getMyProfileFromDB = async (userId: string): Promise<Partial<User>> => {
 };
 
 const getAllUsersFromDB = async (
-  role: UserRole
+  role: UserRole,
 ): Promise<
   Pick<User, Exclude<keyof User, "password" | "needPasswordChange">>[]
 > => {
@@ -67,6 +67,26 @@ const getAllUsersFromDB = async (
   return result;
 };
 
+const getATravelerFromDB = async (travelerId: string) => {
+  const traveler = await prisma.user.findUnique({
+    where: { id: travelerId },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      role: true,
+      status: true,
+      createdAt: true,
+    },
+  });
+
+  if (!traveler) {
+    throw new ApiError(httpStatus.NOT_FOUND, "Traveler not found.");
+  }
+
+  return traveler;
+};
+
 const chnageUserStatusIntoDB = async (data: {
   userId: string;
   status: UserStatus;
@@ -84,7 +104,7 @@ const chnageUserStatusIntoDB = async (data: {
   if (user.status === data.status) {
     throw new ApiError(
       httpStatus.BAD_REQUEST,
-      `User is already ${data.status}.`
+      `User is already ${data.status}.`,
     );
   }
 
@@ -102,7 +122,7 @@ const chnageUserStatusIntoDB = async (data: {
 
 const updateMyProfileIntoDB = async (
   userId: string,
-  data: Partial<User>
+  data: Partial<User>,
 ): Promise<Partial<User>> => {
   await prisma.user.findUniqueOrThrow({
     where: { id: userId },
@@ -121,6 +141,7 @@ const updateMyProfileIntoDB = async (
 export const UserServices = {
   getMyProfileFromDB,
   getAllUsersFromDB,
+  getATravelerFromDB,
   chnageUserStatusIntoDB,
   updateMyProfileIntoDB,
 };

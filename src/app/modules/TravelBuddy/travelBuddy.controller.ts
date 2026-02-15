@@ -11,7 +11,7 @@ const getTravelBuddiesByTripId = catchAsync(
 
     const result = await TravelBuddyServices.getTravelBuddiesByTripIdFromDB(
       userId,
-      tripId
+      tripId,
     );
 
     sendResponse(res, {
@@ -20,7 +20,7 @@ const getTravelBuddiesByTripId = catchAsync(
       message: "Potential travel buddies retrieved successfully",
       data: result,
     });
-  }
+  },
 );
 
 const sendTravelBuddyRequest = catchAsync(
@@ -30,7 +30,7 @@ const sendTravelBuddyRequest = catchAsync(
 
     const result = await TravelBuddyServices.sendTravelBuddyRequestIntoDB(
       tripId,
-      userId
+      userId,
     );
 
     sendResponse(res, {
@@ -39,7 +39,7 @@ const sendTravelBuddyRequest = catchAsync(
       message: "Travel buddy request sent successfully",
       data: result,
     });
-  }
+  },
 );
 
 const respondTravelBuddyRequest = catchAsync(
@@ -49,7 +49,7 @@ const respondTravelBuddyRequest = catchAsync(
 
     const result = await TravelBuddyServices.respondTravelBuddyRequestIntoDB(
       buddyId,
-      data
+      data,
     );
 
     sendResponse(res, {
@@ -58,11 +58,32 @@ const respondTravelBuddyRequest = catchAsync(
       message: "Travel buddy request responded successfully",
       data: result,
     });
-  }
+  },
+);
+
+const getRequestEligibility = catchAsync(
+  async (req: Request, res: Response) => {
+    const { tripId, buddyId } = req.params;
+
+    const result = await TravelBuddyServices.getRequestEligibilityFromDB(
+      tripId,
+      buddyId,
+    );
+
+    console.log(result, "from controller");
+
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "Reequest eligibility check is successfull.",
+      data: result,
+    });
+  },
 );
 
 export const TravelBuddyControllers = {
   getTravelBuddiesByTripId,
   sendTravelBuddyRequest,
   respondTravelBuddyRequest,
+  getRequestEligibility,
 };

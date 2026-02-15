@@ -10,8 +10,10 @@ const router = express.Router();
 router.get(
   "/",
   auth(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.TRAVELER),
-  UserControllers.getAllUsers
+  UserControllers.getAllUsers,
 );
+
+router.get("/travelers/:travelerId", UserControllers.getATraveler);
 
 router.get("/profile", auth(), UserControllers.getMyProfile);
 
@@ -19,13 +21,13 @@ router.put(
   "/profile",
   auth(),
   validatedRequest(UserValidators.updateUserValidationSchema),
-  UserControllers.updateMyProfile
+  UserControllers.updateMyProfile,
 );
 
 router.patch(
   "/change-status",
   auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
-  UserControllers.chnageUserStatus
+  UserControllers.chnageUserStatus,
 );
 
 export const UserRoutes = router;

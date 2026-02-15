@@ -10,14 +10,21 @@ const router = express.Router();
 // get all travel buddies requests
 router.get("/:tripId", auth(), TravelBuddyControllers.getTravelBuddiesByTripId);
 
+router.get(
+  "/request-eligibility/:tripId/:buddyId",
+  auth(),
+  validatedRequest(TravelBuddyValidators.requestEligibilityValidationSchema),
+  TravelBuddyControllers.getRequestEligibility,
+);
+
 // travel buddy request
 router.post(
   "/:tripId/request",
   auth(),
   validatedRequest(
-    TravelBuddyValidators.sendTravelBuddyRequestValidationSchema
+    TravelBuddyValidators.sendTravelBuddyRequestValidationSchema,
   ),
-  TravelBuddyControllers.sendTravelBuddyRequest
+  TravelBuddyControllers.sendTravelBuddyRequest,
 );
 
 // travel buddy respond
@@ -25,9 +32,9 @@ router.put(
   "/:buddyId/respond",
   auth(),
   validatedRequest(
-    TravelBuddyValidators.respondTravelBuddyRequestValidationSchema
+    TravelBuddyValidators.respondTravelBuddyRequestValidationSchema,
   ),
-  TravelBuddyControllers.respondTravelBuddyRequest
+  TravelBuddyControllers.respondTravelBuddyRequest,
 );
 
 export const TravelBuddyRoutes = router;
