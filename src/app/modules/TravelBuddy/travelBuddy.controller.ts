@@ -63,11 +63,12 @@ const respondTravelBuddyRequest = catchAsync(
 
 const getRequestEligibility = catchAsync(
   async (req: Request, res: Response) => {
-    const { tripId, buddyId } = req.params;
+    const { tripId } = req.params;
+    const userId = req.user.id;
 
     const result = await TravelBuddyServices.getRequestEligibilityFromDB(
       tripId,
-      buddyId,
+      userId,
     );
 
     console.log(result, "from controller");
@@ -81,9 +82,26 @@ const getRequestEligibility = catchAsync(
   },
 );
 
+const getTravelRequestHistroy = catchAsync(
+  async (req: Request, res: Response) => {
+    const userId = req.user.id;
+
+    const result =
+      await TravelBuddyServices.getTravelRequestHistroyFromDB(userId);
+
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "Travel request histories retrieved successfully.",
+      data: result,
+    });
+  },
+);
+
 export const TravelBuddyControllers = {
   getTravelBuddiesByTripId,
   sendTravelBuddyRequest,
   respondTravelBuddyRequest,
   getRequestEligibility,
+  getTravelRequestHistroy,
 };

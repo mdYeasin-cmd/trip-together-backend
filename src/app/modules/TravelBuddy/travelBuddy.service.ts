@@ -162,9 +162,32 @@ const getRequestEligibilityFromDB = async (tripId: string, userId: string) => {
   return existingRequest;
 };
 
+const getTravelRequestHistroyFromDB = async (userId: string) => {
+  const result = await prisma.travelBuddyRequest.findMany({
+    where: {
+      userId: userId,
+    },
+    include: {
+      trip: {
+        select: {
+          id: true,
+          destination: true,
+          travelType: true,
+          budget: true,
+          startDate: true,
+          endDate: true,
+        },
+      },
+    },
+  });
+
+  return result;
+};
+
 export const TravelBuddyServices = {
   getTravelBuddiesByTripIdFromDB,
   sendTravelBuddyRequestIntoDB,
   respondTravelBuddyRequestIntoDB,
   getRequestEligibilityFromDB,
+  getTravelRequestHistroyFromDB,
 };

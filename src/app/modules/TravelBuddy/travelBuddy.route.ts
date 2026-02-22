@@ -3,15 +3,18 @@ import auth from "../../middlewares/auth";
 import { TravelBuddyControllers } from "./travelBuddy.controller";
 import validatedRequest from "../../middlewares/validatedRequest";
 import { TravelBuddyValidators } from "./travelBuddy.validator";
-import { UserRole } from "@prisma/client";
 
 const router = express.Router();
 
-// get all travel buddies requests
-router.get("/:tripId", auth(), TravelBuddyControllers.getTravelBuddiesByTripId);
+// request history of a traveler
+router.get(
+  "/request-history",
+  auth(),
+  TravelBuddyControllers.getTravelRequestHistroy,
+);
 
 router.get(
-  "/request-eligibility/:tripId/:buddyId",
+  "/request-eligibility/:tripId",
   auth(),
   validatedRequest(TravelBuddyValidators.requestEligibilityValidationSchema),
   TravelBuddyControllers.getRequestEligibility,
@@ -36,5 +39,8 @@ router.put(
   ),
   TravelBuddyControllers.respondTravelBuddyRequest,
 );
+
+// get all travel buddies requests
+router.get("/:tripId", auth(), TravelBuddyControllers.getTravelBuddiesByTripId);
 
 export const TravelBuddyRoutes = router;

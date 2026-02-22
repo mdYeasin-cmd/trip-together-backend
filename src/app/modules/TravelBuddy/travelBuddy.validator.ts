@@ -20,7 +20,6 @@ const sendTravelBuddyRequestValidationSchema = z.object({
 const requestEligibilityValidationSchema = z.object({
   params: z.object({
     tripId: z.string(),
-    buddyId: z.string(),
   }),
 });
 
