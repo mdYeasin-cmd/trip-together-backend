@@ -30,6 +30,21 @@ router.post(
   TravelBuddyControllers.sendTravelBuddyRequest,
 );
 
+// travel buddy invite
+router.post(
+  "/:tripId/invite",
+  auth(),
+  validatedRequest(TravelBuddyValidators.inviteTravelBuddyValidationSchema),
+  TravelBuddyControllers.inviteTravelBuddy,
+);
+
+// travel buddy request
+router.get(
+  "/:tripId/request",
+  auth(),
+  TravelBuddyControllers.getTravelBuddyRequests,
+);
+
 // travel buddy respond
 router.put(
   "/:buddyId/respond",

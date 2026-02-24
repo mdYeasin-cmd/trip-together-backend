@@ -17,6 +17,12 @@ const sendTravelBuddyRequestValidationSchema = z.object({
   }),
 });
 
+const inviteTravelBuddyValidationSchema = z.object({
+  body: z.object({
+    buddyId: z.string(),
+  }),
+});
+
 const requestEligibilityValidationSchema = z.object({
   params: z.object({
     tripId: z.string(),
@@ -27,4 +33,5 @@ export const TravelBuddyValidators = {
   respondTravelBuddyRequestValidationSchema,
   sendTravelBuddyRequestValidationSchema,
   requestEligibilityValidationSchema,
+  inviteTravelBuddyValidationSchema,
 };

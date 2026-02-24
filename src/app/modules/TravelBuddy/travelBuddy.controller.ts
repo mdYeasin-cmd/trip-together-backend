@@ -98,10 +98,50 @@ const getTravelRequestHistroy = catchAsync(
   },
 );
 
+const getTravelBuddyRequests = catchAsync(
+  async (req: Request, res: Response) => {
+    const userId = req.user.id;
+    const { tripId } = req.params;
+
+    const result = await TravelBuddyServices.getTravelBuddyRequestsFromDB(
+      userId,
+      tripId,
+    );
+
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "Travel buddy requests retrieved successfully.",
+      data: result,
+    });
+  },
+);
+
+const inviteTravelBuddy = catchAsync(async (req: Request, res: Response) => {
+  const userId = req.user.id;
+  const { tripId } = req.params;
+  const { buddyId } = req.body;
+
+  const result = await TravelBuddyServices.inviteTravelBuddyIntoDB(
+    userId,
+    tripId,
+    buddyId,
+  );
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Travel buddy is invited successfully.",
+    data: result,
+  });
+});
+
 export const TravelBuddyControllers = {
   getTravelBuddiesByTripId,
   sendTravelBuddyRequest,
   respondTravelBuddyRequest,
   getRequestEligibility,
   getTravelRequestHistroy,
+  getTravelBuddyRequests,
+  inviteTravelBuddy,
 };

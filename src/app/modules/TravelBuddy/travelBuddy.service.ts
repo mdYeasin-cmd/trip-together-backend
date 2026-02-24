@@ -1,4 +1,7 @@
-import { TravelBuddyRequestStatus } from "@prisma/client";
+import {
+  TravelBuddyRequestStatus,
+  TravelBuddyRequestType,
+} from "@prisma/client";
 import prisma from "../../db/prisma";
 import ApiError from "../../errors/ApiError";
 import httpStatus from "http-status";
@@ -99,6 +102,7 @@ const sendTravelBuddyRequestIntoDB = async (tripId: string, userId: string) => {
     data: {
       tripId,
       userId: userId,
+      trip: TravelBuddyRequestType.REQUEST,
       status: TravelBuddyRequestStatus.PENDING,
     },
   });
@@ -184,10 +188,81 @@ const getTravelRequestHistroyFromDB = async (userId: string) => {
   return result;
 };
 
+const getTravelBuddyRequestsFromDB = async (userId: string, tripId: string) => {
+  // userId = trip creator userId
+  const trip = await prisma.trip.findFirst({
+    where: {
+      id: tripId,
+      userId: userId,
+    },
+    select: {
+      id: true,
+    },
+  });
+
+  if (!trip) {
+    throw new ApiError(httpStatus.NOT_FOUND, "Trip not found.");
+  }
+
+  const travelBuddyRequests = await prisma.travelBuddyRequest.findMany({
+    where: {
+      tripId: tripId,
+    },
+    select: {
+      id: true,
+      status: true,
+      createdAt: true,
+      user: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+        },
+      },
+    },
+  });
+
+  return travelBuddyRequests;
+};
+
+const inviteTravelBuddyIntoDB = async (
+  userId: string,
+  tripId: string,
+  buddyId: string,
+) => {
+  // userId = trip creator userId
+  const trip = await prisma.trip.findFirst({
+    where: {
+      id: tripId,
+      userId: userId,
+    },
+    select: {
+      id: true,
+    },
+  });
+
+  if (!trip) {
+    throw new ApiError(httpStatus.NOT_FOUND, "Trip not found.");
+  }
+
+  const result = await prisma.travelBuddyRequest.create({
+    data: {
+      tripId,
+      userId: buddyId,
+      trip: TravelBuddyRequestType.INVITE,
+      status: TravelBuddyRequestStatus.PENDING,
+    },
+  });
+
+  return result;
+};
+
 export const TravelBuddyServices = {
   getTravelBuddiesByTripIdFromDB,
   sendTravelBuddyRequestIntoDB,
   respondTravelBuddyRequestIntoDB,
   getRequestEligibilityFromDB,
   getTravelRequestHistroyFromDB,
+  getTravelBuddyRequestsFromDB,
+  inviteTravelBuddyIntoDB,
 };

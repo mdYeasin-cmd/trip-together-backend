@@ -70,6 +70,7 @@ model TravelBuddyRequest {
   id        String                   @id @default(uuid())
   tripId    String
   userId    String
+  type      TravelBuddyRequestType
   status    TravelBuddyRequestStatus
   isDeleted Boolean                  @default(false)
   createdAt DateTime                 @default(now())
@@ -85,6 +86,11 @@ enum TravelBuddyRequestStatus {
   PENDING
   APPROVED
   REJECTED
+}
+
+enum TravelBuddyRequestType {
+  REQUEST
+  INVITE
 }
 
 enum UserRole {
