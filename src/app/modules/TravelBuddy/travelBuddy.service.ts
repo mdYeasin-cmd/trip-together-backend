@@ -102,7 +102,7 @@ const sendTravelBuddyRequestIntoDB = async (tripId: string, userId: string) => {
     data: {
       tripId,
       userId: userId,
-      trip: TravelBuddyRequestType.REQUEST,
+      type: TravelBuddyRequestType.REQUEST,
       status: TravelBuddyRequestStatus.PENDING,
     },
   });
@@ -230,6 +230,10 @@ const inviteTravelBuddyIntoDB = async (
   tripId: string,
   buddyId: string,
 ) => {
+  if (userId === buddyId) {
+    throw new ApiError(httpStatus.BAD_REQUEST, "You cannot invite yourself.");
+  }
+
   // userId = trip creator userId
   const trip = await prisma.trip.findFirst({
     where: {
@@ -242,15 +246,58 @@ const inviteTravelBuddyIntoDB = async (
   });
 
   if (!trip) {
-    throw new ApiError(httpStatus.NOT_FOUND, "Trip not found.");
+    throw new ApiError(
+      httpStatus.NOT_FOUND,
+      "Trip not found or you are not authorized.",
+    );
+  }
+
+  const buddy = await prisma.user.findUnique({
+    where: {
+      id: userId,
+    },
+    select: {
+      id: true,
+    },
+  });
+
+  if (!buddy) {
+    throw new ApiError(httpStatus.NOT_FOUND, "Traveler not found.");
+  }
+
+  const existingRequest = await prisma.travelBuddyRequest.findFirst({
+    where: {
+      tripId,
+      userId: buddyId,
+    },
+    select: {
+      id: true,
+    },
+  });
+
+  if (existingRequest) {
+    throw new ApiError(
+      httpStatus.CONFLICT,
+      "This traveler already has a request or invite for this trip.",
+    );
   }
 
   const result = await prisma.travelBuddyRequest.create({
     data: {
       tripId,
       userId: buddyId,
-      trip: TravelBuddyRequestType.INVITE,
+      invitedById: userId,
+      type: TravelBuddyRequestType.INVITE,
       status: TravelBuddyRequestStatus.PENDING,
+    },
+    select: {
+      id: true,
+      tripId: true,
+      userId: true,
+      invitedById: true,
+      type: true,
+      status: true,
+      createdAt: true,
     },
   });
 

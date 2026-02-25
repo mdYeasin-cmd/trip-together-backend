@@ -15,19 +15,21 @@ datasource db {
 }
 
 model User {
-  id                  String               @id @default(uuid())
-  name                String
-  email               String               @unique
-  password            String
-  needPasswordChange  Boolean              @default(true)
-  role                UserRole
-  status              UserStatus           @default(ACTIVE)
-  isDeleted           Boolean              @default(false)
-  createdAt           DateTime             @default(now())
-  updatedAt           DateTime             @updatedAt
-  userProfile         UserProfile?
-  trips               Trip[]
-  travelBuddyRequests TravelBuddyRequest[]
+  id                 String       @id @default(uuid())
+  name               String
+  email              String       @unique
+  password           String
+  needPasswordChange Boolean      @default(true)
+  role               UserRole
+  status             UserStatus   @default(ACTIVE)
+  isDeleted          Boolean      @default(false)
+  createdAt          DateTime     @default(now())
+  updatedAt          DateTime     @updatedAt
+  userProfile        UserProfile?
+  trips              Trip[]
+
+  sentBuddyRequests     TravelBuddyRequest[] @relation("BuddyUser")
+  receivedBuddyRequests TravelBuddyRequest[] @relation("InvitedBy")
 
   @@map("users")
 }
@@ -67,17 +69,19 @@ model Trip {
 }
 
 model TravelBuddyRequest {
-  id        String                   @id @default(uuid())
-  tripId    String
-  userId    String
-  type      TravelBuddyRequestType
-  status    TravelBuddyRequestStatus
-  isDeleted Boolean                  @default(false)
-  createdAt DateTime                 @default(now())
-  updatedAt DateTime                 @updatedAt
+  id          String                   @id @default(uuid())
+  tripId      String
+  userId      String
+  invitedById String?
+  type        TravelBuddyRequestType
+  status      TravelBuddyRequestStatus @default(PENDING)
+  isDeleted   Boolean                  @default(false)
+  createdAt   DateTime                 @default(now())
+  updatedAt   DateTime                 @updatedAt
 
-  user User @relation(fields: [userId], references: [id])
-  trip Trip @relation(fields: [tripId], references: [id])
+  trip      Trip  @relation(fields: [tripId], references: [id])
+  user      User  @relation("BuddyUser", fields: [userId], references: [id])
+  invitedBy User? @relation("InvitedBy", fields: [invitedById], references: [id])
 
   @@map("travel_buddy_requests")
 }
