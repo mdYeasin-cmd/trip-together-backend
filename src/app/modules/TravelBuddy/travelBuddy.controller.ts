@@ -136,6 +136,28 @@ const inviteTravelBuddy = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const respondTravelBuddyInvite = catchAsync(
+  async (req: Request, res: Response) => {
+    const userId = req.user.id;
+    const { invitationId } = req.params;
+    const { tripId, status } = req.body;
+
+    const result = await TravelBuddyServices.respondTravelBuddyInviteIntoDB(
+      tripId,
+      invitationId,
+      userId,
+      status,
+    );
+
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "Travel buddy invitation respond successfully.",
+      data: result,
+    });
+  },
+);
+
 export const TravelBuddyControllers = {
   getTravelBuddiesByTripId,
   sendTravelBuddyRequest,
@@ -144,4 +166,5 @@ export const TravelBuddyControllers = {
   getTravelRequestHistroy,
   getTravelBuddyRequests,
   inviteTravelBuddy,
+  respondTravelBuddyInvite,
 };

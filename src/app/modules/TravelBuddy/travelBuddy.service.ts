@@ -304,6 +304,65 @@ const inviteTravelBuddyIntoDB = async (
   return result;
 };
 
+const respondTravelBuddyInviteIntoDB = async (
+  tripId: string,
+  invitationId: string,
+  userId: string,
+  status: TravelBuddyRequestStatus,
+) => {
+  const result = await prisma.travelBuddyRequest.updateMany({
+    where: {
+      id: invitationId,
+      userId,
+      tripId,
+      type: TravelBuddyRequestType.INVITE,
+      status: TravelBuddyRequestStatus.PENDING,
+      isDeleted: false,
+    },
+    data: {
+      status: status,
+    },
+  });
+
+  if (result?.count === 0) {
+    const invitation = await prisma.travelBuddyRequest.findUnique({
+      where: {
+        id: invitationId,
+      },
+      select: {
+        id: true,
+        status: true,
+        isDeleted: true,
+        userId: true,
+        tripId: true,
+      },
+    });
+
+    if (!invitation || invitation?.isDeleted) {
+      throw new ApiError(httpStatus.NOT_FOUND, "Invitation not found.");
+    }
+
+    const currentStatus =
+      invitation?.status === TravelBuddyRequestStatus.APPROVED
+        ? "accept"
+        : "reject";
+
+    if (invitation.userId !== userId || invitation.tripId !== tripId) {
+      throw new ApiError(
+        httpStatus.FORBIDDEN,
+        "Not allowed to respond to this invitation.",
+      );
+    }
+
+    throw new ApiError(
+      409,
+      `Invitation already ${invitation.status.toLowerCase()}.`,
+    );
+  }
+
+  return result;
+};
+
 export const TravelBuddyServices = {
   getTravelBuddiesByTripIdFromDB,
   sendTravelBuddyRequestIntoDB,
@@ -312,4 +371,5 @@ export const TravelBuddyServices = {
   getTravelRequestHistroyFromDB,
   getTravelBuddyRequestsFromDB,
   inviteTravelBuddyIntoDB,
+  respondTravelBuddyInviteIntoDB,
 };

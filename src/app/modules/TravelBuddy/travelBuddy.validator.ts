@@ -29,9 +29,23 @@ const requestEligibilityValidationSchema = z.object({
   }),
 });
 
+const respondTravelBuddyInviteValidationSchema = z.object({
+  params: z.object({
+    invitationId: z.string().uuid("Invalid invitationId"),
+  }),
+  body: z.object({
+    tripId: z.string().uuid("Invalid tripId"),
+    status: z.enum([
+      TravelBuddyRequestStatus.APPROVED,
+      TravelBuddyRequestStatus.REJECTED,
+    ]),
+  }),
+});
+
 export const TravelBuddyValidators = {
   respondTravelBuddyRequestValidationSchema,
   sendTravelBuddyRequestValidationSchema,
   requestEligibilityValidationSchema,
   inviteTravelBuddyValidationSchema,
+  respondTravelBuddyInviteValidationSchema,
 };

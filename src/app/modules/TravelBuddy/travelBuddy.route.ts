@@ -38,12 +38,24 @@ router.post(
   TravelBuddyControllers.inviteTravelBuddy,
 );
 
+router.patch(
+  "/invitations/:invitationId/respond",
+  auth(),
+  validatedRequest(
+    TravelBuddyValidators.respondTravelBuddyInviteValidationSchema,
+  ),
+  TravelBuddyControllers.respondTravelBuddyInvite,
+);
+
 // travel buddy request
 router.get(
   "/:tripId/request",
   auth(),
   TravelBuddyControllers.getTravelBuddyRequests,
 );
+
+// Request => Respond by trip creator
+// Invite => Respond by traveler /
 
 // travel buddy respond
 router.put(
