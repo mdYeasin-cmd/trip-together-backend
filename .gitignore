@@ -3,3 +3,9 @@ node_modules
 .env
 .vercel
 dist
+
+# temmporary ignore
+docker-run.sh
+Dockerfile
+Dockerfile.single
+.dockerignore

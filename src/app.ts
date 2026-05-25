@@ -3,6 +3,7 @@ import httpStatus from "http-status";
 import globalErrorHandler from "./app/middlewares/globalErrorHandler";
 import cors from "cors";
 import router from "./app/routes";
+import logger from "./app/middlewares/logger";
 
 // application configurations
 const app: Application = express();
@@ -10,6 +11,9 @@ const app: Application = express();
 // parsers
 app.use(express.json());
 app.use(cors());
+
+// logger
+app.use(logger);
 
 // application routes
 app.use("/api/v1", router);

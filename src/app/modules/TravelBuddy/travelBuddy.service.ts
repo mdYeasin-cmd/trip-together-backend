@@ -84,6 +84,8 @@ const sendTravelBuddyRequestIntoDB = async (tripId: string, userId: string) => {
     throw new ApiError(httpStatus.NOT_FOUND, "User doesn't exist.");
   }
 
+  console.log(existingRequest, "existing request.");
+
   if (existingRequest) {
     throw new ApiError(
       httpStatus.BAD_REQUEST,
@@ -137,17 +139,20 @@ const respondTravelBuddyRequestIntoDB = async (
 };
 
 const getRequestEligibilityFromDB = async (tripId: string, userId: string) => {
-  const [trip, user] = await Promise.all([
-    prisma.trip.findUnique({ where: { id: tripId }, select: { id: true } }),
-    prisma.user.findUnique({ where: { id: userId }, select: { id: true } }),
-  ]);
+  const trip = await prisma.trip.findUnique({
+    where: { id: tripId },
+    select: { id: true, userId: true },
+  });
 
   if (!trip) {
     throw new ApiError(404, "Trip is not found.");
   }
 
-  if (!user) {
-    throw new ApiError(404, "User is not found.");
+  if (trip.userId === userId) {
+    throw new ApiError(
+      httpStatus.CONFLICT,
+      "Owner cannot request to join own trip.",
+    );
   }
 
   const existingRequest = await prisma.travelBuddyRequest.findFirst({
@@ -156,36 +161,27 @@ const getRequestEligibilityFromDB = async (tripId: string, userId: string) => {
       userId: userId,
     },
     select: {
-      id: true,
-      tripId: true,
-      userId: true,
       status: true,
     },
   });
 
-  return existingRequest;
-};
+  if (!existingRequest) {
+    return {
+      eligible: true,
+    };
+  }
 
-const getTravelRequestHistroyFromDB = async (userId: string) => {
-  const result = await prisma.travelBuddyRequest.findMany({
-    where: {
-      userId: userId,
-    },
-    include: {
-      trip: {
-        select: {
-          id: true,
-          destination: true,
-          travelType: true,
-          budget: true,
-          startDate: true,
-          endDate: true,
-        },
-      },
-    },
-  });
+  if (existingRequest.status === "PENDING") {
+    throw new ApiError(httpStatus.CONFLICT, "Request already pending.");
+  }
 
-  return result;
+  if (existingRequest.status === "APPROVED") {
+    throw new ApiError(httpStatus.CONFLICT, "Already joined this trip.");
+  }
+
+  return {
+    eligible: true,
+  };
 };
 
 const getTravelBuddyRequestsFromDB = async (userId: string, tripId: string) => {
@@ -207,10 +203,14 @@ const getTravelBuddyRequestsFromDB = async (userId: string, tripId: string) => {
   const travelBuddyRequests = await prisma.travelBuddyRequest.findMany({
     where: {
       tripId: tripId,
+      type: TravelBuddyRequestType.REQUEST,
     },
     select: {
       id: true,
+      userId: true,
+      tripId: true,
       status: true,
+      type: true,
       createdAt: true,
       user: {
         select: {
@@ -274,6 +274,8 @@ const inviteTravelBuddyIntoDB = async (
       id: true,
     },
   });
+
+  console.log(existingRequest, "existing request for invite");
 
   if (existingRequest) {
     throw new ApiError(
@@ -368,7 +370,6 @@ export const TravelBuddyServices = {
   sendTravelBuddyRequestIntoDB,
   respondTravelBuddyRequestIntoDB,
   getRequestEligibilityFromDB,
-  getTravelRequestHistroyFromDB,
   getTravelBuddyRequestsFromDB,
   inviteTravelBuddyIntoDB,
   respondTravelBuddyInviteIntoDB,

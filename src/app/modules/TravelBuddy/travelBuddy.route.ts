@@ -6,38 +6,19 @@ import { TravelBuddyValidators } from "./travelBuddy.validator";
 
 const router = express.Router();
 
-// request history of a traveler
-router.get(
-  "/request-history",
-  auth(),
-  TravelBuddyControllers.getTravelRequestHistroy,
-);
+/* 
+  =========== Invitations by trip creator ===========
+*/
 
-router.get(
-  "/request-eligibility/:tripId",
-  auth(),
-  validatedRequest(TravelBuddyValidators.requestEligibilityValidationSchema),
-  TravelBuddyControllers.getRequestEligibility,
-);
-
-// travel buddy request
+// travel buddy invite by trip creator
 router.post(
-  "/:tripId/request",
-  auth(),
-  validatedRequest(
-    TravelBuddyValidators.sendTravelBuddyRequestValidationSchema,
-  ),
-  TravelBuddyControllers.sendTravelBuddyRequest,
-);
-
-// travel buddy invite
-router.post(
-  "/:tripId/invite",
+  "/invitations/:tripId",
   auth(),
   validatedRequest(TravelBuddyValidators.inviteTravelBuddyValidationSchema),
   TravelBuddyControllers.inviteTravelBuddy,
 );
 
+// travel buddy invitaion respond by traveler
 router.patch(
   "/invitations/:invitationId/respond",
   auth(),
@@ -47,27 +28,12 @@ router.patch(
   TravelBuddyControllers.respondTravelBuddyInvite,
 );
 
-// travel buddy request
+// travel buddy invition get by trip creator
 router.get(
-  "/:tripId/request",
+  "/invitations/:tripId",
   auth(),
-  TravelBuddyControllers.getTravelBuddyRequests,
+  validatedRequest(TravelBuddyValidators.inviteTravelBuddyValidationSchema),
+  TravelBuddyControllers.inviteTravelBuddy,
 );
-
-// Request => Respond by trip creator
-// Invite => Respond by traveler /
-
-// travel buddy respond
-router.put(
-  "/:buddyId/respond",
-  auth(),
-  validatedRequest(
-    TravelBuddyValidators.respondTravelBuddyRequestValidationSchema,
-  ),
-  TravelBuddyControllers.respondTravelBuddyRequest,
-);
-
-// get all travel buddies requests
-router.get("/:tripId", auth(), TravelBuddyControllers.getTravelBuddiesByTripId);
 
 export const TravelBuddyRoutes = router;

@@ -11,8 +11,27 @@ import { bcryptHelpers } from "../../utils/bcryptHelpers";
 import { IUserData } from "../User/user.interface";
 
 const registerTravellerIntoDB = async (
-  data: IUserData
+  data: IUserData,
 ): Promise<Partial<User>> => {
+  // system initialization check
+  const superAdmin = await prisma.user.findFirst({
+    where: {
+      role: UserRole.SUPER_ADMIN,
+      status: UserStatus.ACTIVE,
+      isDeleted: false,
+    },
+    select: {
+      id: true,
+    },
+  });
+
+  if (!superAdmin) {
+    throw new ApiError(
+      httpStatus.SERVICE_UNAVAILABLE,
+      "System is not initialized. Please contact with super admin.",
+    );
+  }
+
   const { name, email, password } = data;
 
   const existingUser = await prisma.user.findUnique({
@@ -54,6 +73,25 @@ const registerTravellerIntoDB = async (
 };
 
 const createAdminIntoDB = async (data: IUserData): Promise<Partial<User>> => {
+  // system initialization check
+  const superAdmin = await prisma.user.findFirst({
+    where: {
+      role: UserRole.SUPER_ADMIN,
+      status: UserStatus.ACTIVE,
+      isDeleted: false,
+    },
+    select: {
+      id: true,
+    },
+  });
+
+  if (!superAdmin) {
+    throw new ApiError(
+      httpStatus.SERVICE_UNAVAILABLE,
+      "System is not initialized. Please contact with super admin.",
+    );
+  }
+
   const { name, email, password } = data;
 
   const existingUser = await prisma.user.findUnique({
@@ -68,7 +106,7 @@ const createAdminIntoDB = async (data: IUserData): Promise<Partial<User>> => {
 
   const hashedPassword: string = await bcrypt.hash(
     password,
-    config.bcrypt_salt_rounds
+    config.bcrypt_salt_rounds,
   );
 
   const userData = {
@@ -98,7 +136,7 @@ const createAdminIntoDB = async (data: IUserData): Promise<Partial<User>> => {
 };
 
 const loginUserIntoDB = async (
-  data: ILoginCredentials
+  data: ILoginCredentials,
 ): Promise<{
   id: string;
   name: string;
@@ -118,7 +156,7 @@ const loginUserIntoDB = async (
 
   const isCorrectPassword: boolean = await bcrypt.compare(
     data.password,
-    userData.password
+    userData.password,
   );
 
   if (!isCorrectPassword) {
@@ -135,7 +173,7 @@ const loginUserIntoDB = async (
   const token = jwtHelpers.generateToken(
     tokenData,
     config.jwt_secret as Secret,
-    config.expires_in as string
+    config.expires_in as string,
   );
 
   return {
@@ -146,7 +184,7 @@ const loginUserIntoDB = async (
 
 const changedPasswordIntoDB = async (
   userId: string,
-  changePasswordData: IChangePassword
+  changePasswordData: IChangePassword,
 ) => {
   const existingUser = await prisma.user.findUnique({
     where: {
@@ -162,7 +200,7 @@ const changedPasswordIntoDB = async (
 
   const isOldPasswordCorrect: boolean = await bcryptHelpers.comparePassword(
     oldPassword,
-    existingUser.password
+    existingUser.password,
   );
 
   if (!isOldPasswordCorrect) {

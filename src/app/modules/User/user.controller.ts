@@ -4,6 +4,7 @@ import sendResponse from "../../utils/sendResponse";
 import { Request, Response } from "express";
 import { UserServices } from "./user.service";
 import pick from "../../utils/pick";
+import { UserRole } from "@prisma/client";
 
 const getMyProfile = catchAsync(async (req: Request, res: Response) => {
   const userId = req.user.id;
@@ -19,7 +20,7 @@ const getMyProfile = catchAsync(async (req: Request, res: Response) => {
 });
 
 const getAllUsers = catchAsync(async (req: Request, res: Response) => {
-  const role = req.user.role;
+  const role = req?.user?.role ?? UserRole.SUPER_ADMIN;
 
   const result = await UserServices.getAllUsersFromDB(role);
 
