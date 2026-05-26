@@ -116,9 +116,52 @@ const getATripFromDB = async (tripId: string) => {
     where: {
       id: tripId,
     },
+    select: {
+      id: true,
+      userId: true,
+      photos: true,
+      destination: true,
+      travelType: true,
+      budget: true,
+      startDate: true,
+      endDate: true,
+      description: true,
+      createdAt: true,
+      updatedAt: true,
+    },
   });
 
+  if (!trip) {
+    throw new ApiError(httpStatus.NOT_FOUND, "This trip is not found!");
+  }
+
   return trip;
+};
+
+const updateATripIntoDB = async (
+  userId: string,
+  tripId: string,
+  data: Partial<ITripCreateData>,
+) => {
+  const trip = await prisma.trip.findUnique({
+    where: {
+      id: tripId,
+      userId: userId,
+    },
+  });
+
+  if (!trip) {
+    throw new ApiError(httpStatus.NOT_FOUND, "This trip is not found!");
+  }
+
+  const result = await prisma.trip.update({
+    where: {
+      id: tripId,
+    },
+    data,
+  });
+
+  return result;
 };
 
 const deleteATripFromDB = async (userId: string, tripId: string) => {
@@ -150,5 +193,6 @@ export const TripServices = {
   createATripIntoDB,
   getAllTripsFromDB,
   getATripFromDB,
+  updateATripIntoDB,
   deleteATripFromDB,
 };

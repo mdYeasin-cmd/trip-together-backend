@@ -6,7 +6,7 @@ const createATripValidationSchema = z.object({
       .array(
         z.string({
           invalid_type_error: "Url must be a string.",
-        })
+        }),
       )
       .nonempty({
         message: "At least one photo is required",
@@ -36,6 +36,19 @@ const createATripValidationSchema = z.object({
   }),
 });
 
+const updateATripValidationSchema = z.object({
+  body: z.object({
+    photos: z.array(z.string()).optional(),
+    destination: z.string().optional(),
+    travelType: z.string().optional(),
+    budget: z.number().optional(),
+    startDate: z.string().optional(),
+    endDate: z.string().optional(),
+    description: z.string().optional(),
+  }),
+});
+
 export const TripValidators = {
   createATripValidationSchema,
+  updateATripValidationSchema,
 };

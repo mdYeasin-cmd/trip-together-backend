@@ -53,6 +53,21 @@ const getATrip = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const updateATrip = catchAsync(async (req: Request, res: Response) => {
+  const userId = req.user.id;
+  const tripId = req.params.tripId;
+  const data = req.body;
+
+  const result = await TripServices.updateATripIntoDB(userId, tripId, data);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Trip updated successfully",
+    data: result,
+  });
+});
+
 const deleteATrip = catchAsync(async (req: Request, res: Response) => {
   const userId = req.user.id;
   const { tripId } = req.params;
@@ -71,5 +86,6 @@ export const TripControllers = {
   createATrip,
   getAllTrips,
   getATrip,
+  updateATrip,
   deleteATrip,
 };

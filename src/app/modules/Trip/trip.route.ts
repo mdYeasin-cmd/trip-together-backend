@@ -18,6 +18,13 @@ router.get("/", TripControllers.getAllTrips);
 
 router.get("/:tripId", TripControllers.getATrip);
 
+router.patch(
+  "/:tripId",
+  auth(UserRole.TRAVELER),
+  validatedRequest(TripValidators.updateATripValidationSchema),
+  TripControllers.updateATrip,
+);
+
 router.delete(
   "/:tripId",
   auth(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.TRAVELER),
