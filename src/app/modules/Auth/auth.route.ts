@@ -8,28 +8,15 @@ import { UserRole } from "@prisma/client";
 const router = express.Router();
 
 router.post(
-  "/register-traveller",
-  validatedRequest(AuthValidators.registerTravellerValidationSchema),
-  AuthControllers.registerTraveller
-);
-
-router.post(
-  "/create-admin",
-  auth(UserRole.SUPER_ADMIN),
-  validatedRequest(AuthValidators.createAdminValidationSchema),
-  AuthControllers.createAdmin
-);
-
-router.post(
   "/login",
   validatedRequest(AuthValidators.loginValidationSchema),
-  AuthControllers.loginUser
+  AuthControllers.loginUser,
 );
 
 router.post(
   "/change-password",
   auth(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.TRAVELER),
-  AuthControllers.changePassword
+  AuthControllers.changePassword,
 );
 
 export const AuthRoutes = router;

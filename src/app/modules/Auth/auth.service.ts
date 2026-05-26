@@ -1,4 +1,3 @@
-import { User, UserRole, UserStatus } from "@prisma/client";
 import bcrypt from "bcrypt";
 import { IChangePassword, ILoginCredentials } from "./auth.interface";
 import prisma from "../../db/prisma";
@@ -6,134 +5,8 @@ import ApiError from "../../errors/ApiError";
 import httpStatus from "http-status";
 import { jwtHelpers } from "../../utils/jwtHelpers";
 import config from "../../config";
-import { JwtPayload, Secret } from "jsonwebtoken";
+import { Secret } from "jsonwebtoken";
 import { bcryptHelpers } from "../../utils/bcryptHelpers";
-import { IUserData } from "../User/user.interface";
-
-const registerTravellerIntoDB = async (
-  data: IUserData,
-): Promise<Partial<User>> => {
-  // system initialization check
-  const superAdmin = await prisma.user.findFirst({
-    where: {
-      role: UserRole.SUPER_ADMIN,
-      status: UserStatus.ACTIVE,
-      isDeleted: false,
-    },
-    select: {
-      id: true,
-    },
-  });
-
-  if (!superAdmin) {
-    throw new ApiError(
-      httpStatus.SERVICE_UNAVAILABLE,
-      "System is not initialized. Please contact with super admin.",
-    );
-  }
-
-  const { name, email, password } = data;
-
-  const existingUser = await prisma.user.findUnique({
-    where: {
-      email: data.email,
-    },
-  });
-
-  if (existingUser) {
-    throw new ApiError(httpStatus.CONFLICT, "Traveller already exists.");
-  }
-
-  const hashedPassword: string = await bcrypt.hash(password, 12);
-
-  const userData = {
-    name,
-    email,
-    password: hashedPassword,
-    role: UserRole.TRAVELER,
-  };
-
-  const result = await prisma.$transaction(async (transactionClient) => {
-    const user = await transactionClient.user.create({
-      data: userData,
-    });
-
-    await transactionClient.userProfile.create({
-      data: {
-        userId: user.id,
-      },
-    });
-
-    return user;
-  });
-
-  const { password: p, ...restUserData } = result;
-
-  return restUserData;
-};
-
-const createAdminIntoDB = async (data: IUserData): Promise<Partial<User>> => {
-  // system initialization check
-  const superAdmin = await prisma.user.findFirst({
-    where: {
-      role: UserRole.SUPER_ADMIN,
-      status: UserStatus.ACTIVE,
-      isDeleted: false,
-    },
-    select: {
-      id: true,
-    },
-  });
-
-  if (!superAdmin) {
-    throw new ApiError(
-      httpStatus.SERVICE_UNAVAILABLE,
-      "System is not initialized. Please contact with super admin.",
-    );
-  }
-
-  const { name, email, password } = data;
-
-  const existingUser = await prisma.user.findUnique({
-    where: {
-      email: data.email,
-    },
-  });
-
-  if (existingUser) {
-    throw new ApiError(httpStatus.CONFLICT, "Admin already exists.");
-  }
-
-  const hashedPassword: string = await bcrypt.hash(
-    password,
-    config.bcrypt_salt_rounds,
-  );
-
-  const userData = {
-    name,
-    email,
-    password: hashedPassword,
-    role: UserRole.ADMIN,
-  };
-
-  const result = await prisma.$transaction(async (transactionClient) => {
-    const user = await transactionClient.user.create({
-      data: userData,
-    });
-
-    await transactionClient.userProfile.create({
-      data: {
-        userId: user.id,
-      },
-    });
-
-    return user;
-  });
-
-  const { password: p, ...restUserData } = result;
-
-  return restUserData;
-};
 
 const loginUserIntoDB = async (
   data: ILoginCredentials,
@@ -222,8 +95,6 @@ const changedPasswordIntoDB = async (
 };
 
 export const AuthServices = {
-  registerTravellerIntoDB,
-  createAdminIntoDB,
   loginUserIntoDB,
   changedPasswordIntoDB,
 };

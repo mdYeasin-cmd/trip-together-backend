@@ -4,32 +4,6 @@ import { AuthServices } from "./auth.service";
 import sendResponse from "../../utils/sendResponse";
 import httpStatus from "http-status";
 
-const registerTraveller = catchAsync(async (req: Request, res: Response) => {
-  const data = req.body;
-
-  const result = await AuthServices.registerTravellerIntoDB(data);
-
-  sendResponse(res, {
-    statusCode: httpStatus.CREATED,
-    success: true,
-    message: "User registered successfully",
-    data: result,
-  });
-});
-
-const createAdmin = catchAsync(async (req: Request, res: Response) => {
-  const data = req.body;
-
-  const result = await AuthServices.createAdminIntoDB(data);
-
-  sendResponse(res, {
-    statusCode: httpStatus.CREATED,
-    success: true,
-    message: "Admin is created successfully",
-    data: result,
-  });
-});
-
 const loginUser = catchAsync(async (req: Request, res: Response) => {
   const data = req.body;
 
@@ -49,7 +23,7 @@ const changePassword = catchAsync(async (req: Request, res: Response) => {
 
   const result = await AuthServices.changedPasswordIntoDB(
     userId,
-    chnagePasswordData
+    chnagePasswordData,
   );
 
   sendResponse(res, {
@@ -61,8 +35,6 @@ const changePassword = catchAsync(async (req: Request, res: Response) => {
 });
 
 export const AuthControllers = {
-  registerTraveller,
-  createAdmin,
   loginUser,
   changePassword,
 };

@@ -6,6 +6,32 @@ import { UserServices } from "./user.service";
 import pick from "../../utils/pick";
 import { UserRole } from "@prisma/client";
 
+const registerTraveller = catchAsync(async (req: Request, res: Response) => {
+  const data = req.body;
+
+  const result = await UserServices.registerTravellerIntoDB(data);
+
+  sendResponse(res, {
+    statusCode: httpStatus.CREATED,
+    success: true,
+    message: "User registered successfully",
+    data: result,
+  });
+});
+
+const createAdmin = catchAsync(async (req: Request, res: Response) => {
+  const data = req.body;
+
+  const result = await UserServices.createAdminIntoDB(data);
+
+  sendResponse(res, {
+    statusCode: httpStatus.CREATED,
+    success: true,
+    message: "Admin is created successfully",
+    data: result,
+  });
+});
+
 const getMyProfile = catchAsync(async (req: Request, res: Response) => {
   const userId = req.user.id;
 
@@ -32,10 +58,10 @@ const getAllUsers = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-const getATraveler = catchAsync(async (req: Request, res: Response) => {
-  const travelerId = req.params.travelerId;
+const getAUser = catchAsync(async (req: Request, res: Response) => {
+  const userId = req.params.userId;
 
-  const result = await UserServices.getATravelerFromDB(travelerId);
+  const result = await UserServices.getAUserFromDB(userId);
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
@@ -78,9 +104,11 @@ const chnageUserStatus = catchAsync(async (req: Request, res: Response) => {
 });
 
 export const UserControllers = {
+  registerTraveller,
+  createAdmin,
   getMyProfile,
   getAllUsers,
-  getATraveler,
+  getAUser,
   updateMyProfile,
   chnageUserStatus,
 };

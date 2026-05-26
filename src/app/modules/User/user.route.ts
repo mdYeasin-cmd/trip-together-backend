@@ -7,13 +7,24 @@ import { UserRole } from "@prisma/client";
 
 const router = express.Router();
 
-router.get(
-  "/",
-  // auth(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.TRAVELER),
-  UserControllers.getAllUsers,
+router.post(
+  "/register-traveller",
+  validatedRequest(UserValidators.registerTravellerValidationSchema),
+  UserControllers.registerTraveller,
 );
 
-router.get("/travelers/:travelerId", UserControllers.getATraveler);
+router.post(
+  "/create-admin",
+  auth(UserRole.SUPER_ADMIN),
+  validatedRequest(UserValidators.createAdminValidationSchema),
+  UserControllers.createAdmin,
+);
+
+router.get(
+  "/",
+  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.TRAVELER),
+  UserControllers.getAllUsers,
+);
 
 router.get("/profile", auth(), UserControllers.getMyProfile);
 
@@ -29,5 +40,7 @@ router.patch(
   auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
   UserControllers.chnageUserStatus,
 );
+
+router.get("/:userId", UserControllers.getAUser);
 
 export const UserRoutes = router;
