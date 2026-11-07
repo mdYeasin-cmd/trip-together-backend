@@ -1,112 +1,17 @@
 import { Request, Response } from "express";
 import catchAsync from "../../utils/catchAsync";
-import { TravelBuddyServices } from "./travelBuddy.service";
+import { BuddyInvitationServices } from "./buddyInvitation.service";
 import sendResponse from "../../utils/sendResponse";
 import httpStatus from "http-status";
 
-const getTravelBuddiesByTripId = catchAsync(
-  async (req: Request, res: Response) => {
-    const { tripId } = req.params;
-    const userId = req.user.id;
-
-    const result = await TravelBuddyServices.getTravelBuddiesByTripIdFromDB(
-      userId,
-      tripId,
-    );
-
-    sendResponse(res, {
-      statusCode: httpStatus.OK,
-      success: true,
-      message: "Potential travel buddies retrieved successfully",
-      data: result,
-    });
-  },
-);
-
-const sendTravelBuddyRequest = catchAsync(
-  async (req: Request, res: Response) => {
-    const { tripId } = req.params;
-    const userId = req.user.id;
-
-    const result = await TravelBuddyServices.sendTravelBuddyRequestIntoDB(
-      tripId,
-      userId,
-    );
-
-    sendResponse(res, {
-      statusCode: httpStatus.CREATED,
-      success: true,
-      message: "Travel buddy request sent successfully",
-      data: result,
-    });
-  },
-);
-
-const respondTravelBuddyRequest = catchAsync(
-  async (req: Request, res: Response) => {
-    const { buddyId } = req.params;
-    const data = req.body;
-
-    const result = await TravelBuddyServices.respondTravelBuddyRequestIntoDB(
-      buddyId,
-      data,
-    );
-
-    sendResponse(res, {
-      statusCode: httpStatus.OK,
-      success: true,
-      message: "Travel buddy request responded successfully",
-      data: result,
-    });
-  },
-);
-
-const getRequestEligibility = catchAsync(
-  async (req: Request, res: Response) => {
-    const { tripId } = req.params;
-    const userId = req.user.id;
-
-    const result = await TravelBuddyServices.getRequestEligibilityFromDB(
-      tripId,
-      userId,
-    );
-
-    console.log(result, "from controller");
-
-    sendResponse(res, {
-      statusCode: httpStatus.OK,
-      success: true,
-      message: "Reequest eligibility check is successfull.",
-      data: result,
-    });
-  },
-);
-
-const getTravelBuddyRequests = catchAsync(
-  async (req: Request, res: Response) => {
-    const userId = req.user.id;
-    const { tripId } = req.params;
-
-    const result = await TravelBuddyServices.getTravelBuddyRequestsFromDB(
-      userId,
-      tripId,
-    );
-
-    sendResponse(res, {
-      statusCode: httpStatus.OK,
-      success: true,
-      message: "Travel buddy requests retrieved successfully.",
-      data: result,
-    });
-  },
-);
+// ====================
 
 const inviteTravelBuddy = catchAsync(async (req: Request, res: Response) => {
   const userId = req.user.id;
   const { tripId } = req.params;
   const { buddyId } = req.body;
 
-  const result = await TravelBuddyServices.inviteTravelBuddyIntoDB(
+  const result = await BuddyInvitationServices.inviteTravelBuddyIntoDB(
     userId,
     tripId,
     buddyId,
@@ -126,7 +31,7 @@ const respondTravelBuddyInvite = catchAsync(
     const { invitationId } = req.params;
     const { tripId, status } = req.body;
 
-    const result = await TravelBuddyServices.respondTravelBuddyInviteIntoDB(
+    const result = await BuddyInvitationServices.respondTravelBuddyInviteIntoDB(
       tripId,
       invitationId,
       userId,
@@ -142,7 +47,109 @@ const respondTravelBuddyInvite = catchAsync(
   },
 );
 
-export const TravelBuddyControllers = {
+// ====================
+
+const getTravelBuddiesByTripId = catchAsync(
+  async (req: Request, res: Response) => {
+    const { tripId } = req.params;
+    const userId = req.user.id;
+
+    const result = await BuddyInvitationServices.getTravelBuddiesByTripIdFromDB(
+      userId,
+      tripId,
+    );
+
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "Potential travel buddies retrieved successfully",
+      data: result,
+    });
+  },
+);
+
+const sendTravelBuddyRequest = catchAsync(
+  async (req: Request, res: Response) => {
+    const { tripId } = req.params;
+    const userId = req.user.id;
+
+    const result = await BuddyInvitationServices.sendTravelBuddyRequestIntoDB(
+      tripId,
+      userId,
+    );
+
+    sendResponse(res, {
+      statusCode: httpStatus.CREATED,
+      success: true,
+      message: "Travel buddy request sent successfully",
+      data: result,
+    });
+  },
+);
+
+const respondTravelBuddyRequest = catchAsync(
+  async (req: Request, res: Response) => {
+    const { requestId } = req.params;
+    const data = req.body;
+    const userId = req.user.id;
+
+    const result =
+      await BuddyInvitationServices.respondTravelBuddyRequestIntoDB(
+        userId,
+        requestId,
+        data,
+      );
+
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "Travel buddy request responded successfully",
+      data: result,
+    });
+  },
+);
+
+const getRequestEligibility = catchAsync(
+  async (req: Request, res: Response) => {
+    const { tripId } = req.params;
+    const userId = req.user.id;
+
+    const result = await BuddyInvitationServices.getRequestEligibilityFromDB(
+      tripId,
+      userId,
+    );
+
+    console.log(result, "from controller");
+
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "Request eligibility check is successful.",
+      data: result,
+    });
+  },
+);
+
+const getTravelBuddyRequests = catchAsync(
+  async (req: Request, res: Response) => {
+    const userId = req.user.id;
+    const { tripId } = req.params;
+
+    const result = await BuddyInvitationServices.getTravelBuddyRequestsFromDB(
+      userId,
+      tripId,
+    );
+
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "Travel buddy requests retrieved successfully.",
+      data: result,
+    });
+  },
+);
+
+export const BuddyInvitationControllers = {
   getTravelBuddiesByTripId,
   sendTravelBuddyRequest,
   respondTravelBuddyRequest,

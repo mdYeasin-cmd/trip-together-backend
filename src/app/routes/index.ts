@@ -2,7 +2,7 @@ import express from "express";
 import { AuthRoutes } from "../modules/Auth/auth.route";
 import { UserRoutes } from "../modules/User/user.route";
 import { TripRoutes } from "../modules/Trip/trip.route";
-import { TravelBuddyRoutes } from "../modules/TravelBuddy/travelBuddy.route";
+import { BuddyInvitationRoutes } from "../modules/BuddyInvitation/buddyInvitation.route";
 import { BuddyRequestRoutes } from "../modules/BuddyRequest/buddyRequest.route";
 
 const router = express.Router();
@@ -21,12 +21,12 @@ const moduleRoutes = [
     route: TripRoutes,
   },
   {
-    path: "/travel-buddies",
-    route: TravelBuddyRoutes,
-  },
-  {
     path: "/travel-buddy-requests",
     route: BuddyRequestRoutes,
+  },
+  {
+    path: "/travel-buddy-invitations",
+    route: BuddyInvitationRoutes,
   },
 ];
 

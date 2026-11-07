@@ -113,22 +113,50 @@ const sendTravelBuddyRequestIntoDB = async (tripId: string, userId: string) => {
 };
 
 const respondTravelBuddyRequestIntoDB = async (
-  buddyId: string,
+  userId: string,
+  requestId: string,
   data: {
-    tripId: string;
     status: TravelBuddyRequestStatus;
   },
 ) => {
-  const buddyRequest = await prisma.travelBuddyRequest.findFirstOrThrow({
+  const tripRequest = await prisma.travelBuddyRequest.findUnique({
     where: {
-      userId: buddyId,
-      tripId: data.tripId,
+      id: requestId,
+    },
+    select: {
+      id: true,
+      tripId: true,
+      userId: true,
+      status: true,
+      trip: {
+        select: {
+          userId: true,
+        },
+      },
     },
   });
 
+  if (!tripRequest) {
+    throw new ApiError(httpStatus.NOT_FOUND, "Travel buddy request not found.");
+  }
+
+  if (tripRequest.trip.userId !== userId) {
+    throw new ApiError(
+      httpStatus.FORBIDDEN,
+      "You don't have permission to respond to this travel buddy request.",
+    );
+  }
+
+  if (tripRequest.status !== TravelBuddyRequestStatus.PENDING) {
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      "This request has already been responded to.",
+    );
+  }
+
   const result = await prisma.travelBuddyRequest.update({
     where: {
-      id: buddyRequest.id,
+      id: requestId,
     },
     data: {
       status: data.status,
@@ -365,7 +393,7 @@ const respondTravelBuddyInviteIntoDB = async (
   return result;
 };
 
-export const TravelBuddyServices = {
+export const BuddyInvitationServices = {
   getTravelBuddiesByTripIdFromDB,
   sendTravelBuddyRequestIntoDB,
   respondTravelBuddyRequestIntoDB,
