@@ -11,43 +11,28 @@ const router = express.Router();
 */
 
 // request history of a traveler
-router.get(
-  "/requests/history",
-  auth(),
-  BuddyRequestControllers.getTravelRequestHistroy,
-);
+router.get("/history", auth(), BuddyRequestControllers.getBuddyRequestHistory);
 
 // request eligibility check for a traveler
-// router.get(
-//   "/requests/eligibility/:tripId",
-//   auth(),
-//   validatedRequest(TravelBuddyValidators.requestEligibilityValidationSchema),
-//   TravelBuddyControllers.getRequestEligibility,
-// );
-
-// travel buddy request from traveler
-router.post(
-  "/requests/:tripId",
+router.get(
+  "/eligibility/:tripId",
   auth(),
-  validatedRequest(BuddyRequestValidators.sendBuddyRequestValidationSchema),
-  BuddyRequestControllers.sendBuddyRequest,
+  validatedRequest(BuddyRequestValidators.requestEligibilityValidationSchema),
+  BuddyRequestControllers.getRequestEligibility,
 );
 
+// travel buddy request from traveler
+router.post("/trips/:tripId", auth(), BuddyRequestControllers.sendBuddyRequest);
+
 // travel buddy respond by trip creator
-// router.patch(
-//   "/requests/:buddyId/respond",
-//   auth(),
-//   validatedRequest(
-//     TravelBuddyValidators.respondTravelBuddyRequestValidationSchema,
-//   ),
-//   TravelBuddyControllers.respondTravelBuddyRequest,
-// );
+router.patch(
+  "/:requestId/respond",
+  auth(),
+  validatedRequest(BuddyRequestValidators.respondBuddyRequestValidationSchema),
+  BuddyRequestControllers.respondBuddyRequest,
+);
 
 // travel buddy request get by trip creator
-// router.get(
-//   "/requests/:tripId",
-//   auth(),
-//   TravelBuddyControllers.getTravelBuddyRequests,
-// );
+router.get("/trips/:tripId", auth(), BuddyRequestControllers.getBuddyRequests);
 
 export const BuddyRequestRoutes = router;

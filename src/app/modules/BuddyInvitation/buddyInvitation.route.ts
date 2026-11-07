@@ -1,8 +1,8 @@
 import express from "express";
 import auth from "../../middlewares/auth";
-import { TravelBuddyControllers } from "./travelBuddy.controller";
+import { BuddyInvitationControllers } from "./buddyInvitation.controller";
 import validatedRequest from "../../middlewares/validatedRequest";
-import { TravelBuddyValidators } from "./travelBuddy.validator";
+import { TravelBuddyValidators } from "./buddyInvitation.validator";
 
 const router = express.Router();
 
@@ -12,10 +12,10 @@ const router = express.Router();
 
 // travel buddy invite by trip creator
 router.post(
-  "/invitations/:tripId",
+  "/trips/:tripId",
   auth(),
   validatedRequest(TravelBuddyValidators.inviteTravelBuddyValidationSchema),
-  TravelBuddyControllers.inviteTravelBuddy,
+  BuddyInvitationControllers.inviteTravelBuddy,
 );
 
 // travel buddy invitaion respond by traveler
@@ -25,15 +25,15 @@ router.patch(
   validatedRequest(
     TravelBuddyValidators.respondTravelBuddyInviteValidationSchema,
   ),
-  TravelBuddyControllers.respondTravelBuddyInvite,
+  BuddyInvitationControllers.respondTravelBuddyInvite,
 );
 
 // travel buddy invition get by trip creator
-router.get(
-  "/invitations/:tripId",
-  auth(),
-  validatedRequest(TravelBuddyValidators.inviteTravelBuddyValidationSchema),
-  TravelBuddyControllers.inviteTravelBuddy,
-);
+// router.get(
+//   "/invitations/:tripId",
+//   auth(),
+//   validatedRequest(TravelBuddyValidators.inviteTravelBuddyValidationSchema),
+//   BuddyInvitationControllers.inviteTravelBuddy,
+// );
 
-export const TravelBuddyRoutes = router;
+export const BuddyInvitationRoutes = router;

@@ -1,9 +1,8 @@
 import { TravelBuddyRequestStatus } from "@prisma/client";
 import { z } from "zod";
 
-const respondTravelBuddyRequestValidationSchema = z.object({
+const respondBuddyRequestValidationSchema = z.object({
   body: z.object({
-    tripId: z.string(),
     status: z.enum([
       TravelBuddyRequestStatus.APPROVED,
       TravelBuddyRequestStatus.REJECTED,
@@ -24,7 +23,7 @@ const requestEligibilityValidationSchema = z.object({
 });
 
 export const BuddyRequestValidators = {
-  respondTravelBuddyRequestValidationSchema,
+  respondBuddyRequestValidationSchema,
   sendBuddyRequestValidationSchema,
   requestEligibilityValidationSchema,
 };
