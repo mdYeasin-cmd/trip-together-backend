@@ -9,3 +9,5 @@ docker-run.sh
 Dockerfile
 Dockerfile.single
 .dockerignore
+node_modules/
+dist/
