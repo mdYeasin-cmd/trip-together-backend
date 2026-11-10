@@ -2,9 +2,8 @@ import express, { Application, NextFunction, Request, Response } from "express";
 import httpStatus from "http-status";
 import globalErrorHandler from "./app/middlewares/globalErrorHandler";
 import cors from "cors";
-// import router from "./app/routes";
+import router from "./app/routes";
 import logger from "./app/middlewares/logger";
-import { db } from "./prisma/db";
 
 // application configurations
 const app: Application = express();
@@ -17,7 +16,7 @@ app.use(cors());
 app.use(logger);
 
 // application routes
-// app.use("/api/v1", router);
+app.use("/api/v1", router);
 
 // test route
 app.get("/", async (req: Request, res: Response) => {
