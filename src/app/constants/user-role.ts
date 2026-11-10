@@ -4,4 +4,6 @@ const UserRole = {
   TRAVELER: "TRAVELER",
 } as const;
 
+type UserRole = (typeof UserRole)[keyof typeof UserRole];
+
 export { UserRole };
