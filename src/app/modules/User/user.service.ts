@@ -115,18 +115,18 @@ const getAllUsersFromDB = async (role: UserRole) => {
   let result;
 
   if (role === UserRole.ADMIN || role === UserRole.TRAVELER) {
-    result = await orm.User.where({
-      role: UserRole.TRAVELER,
-      isDeleted: false,
-    })
+    result = await orm.User.select(...userListFields)
+      .where({
+        role: UserRole.TRAVELER,
+        isDeleted: false,
+      })
       .orderBy((u) => u.createdAt.desc())
-      .select(...userListFields)
       .all();
   } else {
-    result = await orm.User.where({ isDeleted: false })
+    result = await orm.User.select(...userListFields)
+      .where({ isDeleted: false })
       .where((u) => u.role.neq(UserRole.SUPER_ADMIN))
       .orderBy((u) => u.createdAt.desc())
-      .select(...userListFields)
       .all();
   }
 
@@ -134,14 +134,18 @@ const getAllUsersFromDB = async (role: UserRole) => {
 };
 
 const getAUserFromDB = async (userId: string) => {
-  const user = await orm.User.select(
+  const userFields = [
     "id",
     "name",
     "email",
     "role",
     "status",
+    "isDeleted",
     "createdAt",
-  ).first({ id: userId });
+    "updatedAt",
+  ] as const;
+
+  const user = await orm.User.select(...userFields).first({ id: userId });
 
   if (!user) {
     throw new ApiError(httpStatus.NOT_FOUND, "Traveler not found.");

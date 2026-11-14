@@ -15,14 +15,14 @@ router.post(
 
 router.post(
   "/create-admin",
-  // auth(UserRole.SUPER_ADMIN),
+  auth(UserRole.SUPER_ADMIN),
   validatedRequest(UserValidators.createAdminValidationSchema),
   UserControllers.createAdmin,
 );
 
 router.get(
   "/",
-  // auth(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.TRAVELER),
+  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.TRAVELER),
   UserControllers.getAllUsers,
 );
 

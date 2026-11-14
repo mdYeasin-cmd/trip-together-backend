@@ -1,6 +1,6 @@
 import bcrypt from "bcrypt";
 import { IChangePassword, ILoginCredentials } from "./auth.interface";
-import prisma from "../../db/prisma";
+import { orm } from "../../../prisma/db";
 import ApiError from "../../errors/ApiError";
 import httpStatus from "http-status";
 import { jwtHelpers } from "../../utils/jwtHelpers";
@@ -17,10 +17,8 @@ const loginUserIntoDB = async (
   role: string;
   token: string;
 }> => {
-  const userData = await prisma.user.findUnique({
-    where: {
-      email: data.email,
-    },
+  const userData = await orm.User.first({
+    email: data.email,
   });
 
   if (!userData) {
@@ -59,10 +57,8 @@ const changedPasswordIntoDB = async (
   userId: string,
   changePasswordData: IChangePassword,
 ) => {
-  const existingUser = await prisma.user.findUnique({
-    where: {
-      id: userId,
-    },
+  const existingUser = await orm.User.first({
+    id: userId,
   });
 
   if (!existingUser) {
@@ -82,13 +78,8 @@ const changedPasswordIntoDB = async (
 
   const hashedNewPassword = await bcryptHelpers.hashPassword(newPassword);
 
-  const result = await prisma.user.update({
-    where: {
-      id: userId,
-    },
-    data: {
-      password: hashedNewPassword,
-    },
+  const result = await orm.User.where({ id: userId }).update({
+    password: hashedNewPassword,
   });
 
   return result;
