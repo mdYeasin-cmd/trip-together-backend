@@ -11,6 +11,10 @@ export default {
   jwt_secret: process.env.JWT_SECRET,
   expires_in: process.env.EXPIRES_IN,
   bcrypt_salt_rounds: Number(process.env.BCRYPT_SALT_ROUNDS),
+  // Reset Password Config
+  reset_pass_secret: process.env.RESET_PASS_TOKEN,
+  reset_pass_token_expires_in: process.env.RESET_PASS_TOKEN_EXPIRES_IN,
+  reset_pass_ui_link: process.env.RESET_PASS_LINK,
   // Super Admin Config
   super_admin_name: process.env.SUPER_ADMIN_NAME,
   super_admin_email: process.env.SUPER_ADMIN_EMAIL,

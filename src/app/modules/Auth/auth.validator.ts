@@ -14,7 +14,22 @@ const loginValidationSchema = z.object({
   }),
 });
 
+const forgotPasswordValidationSchema = z.object({
+  body: z.object({
+    email: z.string().email(),
+  }),
+});
+
+const resetPasswordValidationSchema = z.object({
+  body: z.object({
+    token: z.string(),
+    newPassword: z.string().min(6),
+  }),
+});
+
 export const AuthValidators = {
   loginValidationSchema,
   updateUserValidationSchema,
+  forgotPasswordValidationSchema,
+  resetPasswordValidationSchema,
 };
