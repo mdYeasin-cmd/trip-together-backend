@@ -1,7 +1,7 @@
 import {
   TravelBuddyRequestStatus,
   TravelBuddyRequestType,
-} from "@prisma/client";
+} from "../../constants/travel-buddy-request";
 import prisma from "../../db/prisma";
 import ApiError from "../../errors/ApiError";
 import httpStatus from "http-status";

@@ -3,8 +3,8 @@ import httpStatus from "http-status";
 import { ZodError } from "zod";
 import handleZodError from "../errors/handleZodError";
 import ApiError from "../errors/ApiError";
-// import { Prisma } from "@prisma/client";
-// import handleClientError from "../errors/handleClientError";
+import { isStructuredError } from "@prisma/orm-postgres/utils/structured-error";
+import handleClientError from "../errors/handleClientError";
 
 const globalErrorHandler = (
   err: any,
@@ -32,13 +32,12 @@ const globalErrorHandler = (
     statusCode = err.statusCode;
     message = err.message;
     errorDetails = err;
+  } else if (isStructuredError(err)) {
+    const simplifiedError = handleClientError(err);
+    statusCode = simplifiedError.statusCode;
+    message = simplifiedError.message;
+    errorDetails = simplifiedError.errorDetails;
   }
-  // else if (err instanceof Prisma.PrismaClientKnownRequestError) {
-  //   const simplifiedError = handleClientError(err);
-  //   statusCode = simplifiedError.statusCode;
-  //   if (simplifiedError.message) message = simplifiedError.message;
-  //   errorDetails = simplifiedError.errorDetails;
-  // }
 
   res.status(statusCode).json({
     success: false,

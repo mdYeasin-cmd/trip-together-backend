@@ -4,7 +4,7 @@ import ApiError from "../../errors/ApiError";
 import {
   TravelBuddyRequestStatus,
   TravelBuddyRequestType,
-} from "@prisma/client";
+} from "../../constants/travel-buddy-request";
 
 const getBuddyRequestHistoryFromDB = async (userId: string) => {
   const result = await prisma.travelBuddyRequest.findMany({

@@ -1,4 +1,4 @@
-import { TravelBuddyRequestStatus } from "@prisma/client";
+import { TravelBuddyRequestStatus } from "../../constants/travel-buddy-request";
 import { z } from "zod";
 
 const respondTravelBuddyRequestValidationSchema = z.object({
