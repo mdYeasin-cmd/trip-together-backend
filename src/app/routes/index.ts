@@ -2,7 +2,7 @@ import express from "express";
 // import { AuthRoutes } from "../modules/Auth/auth.route";
 import { UserRoutes } from "../modules/User/user.route";
 import { AuthRoutes } from "../modules/Auth/auth.route";
-// import { TripRoutes } from "../modules/Trip/trip.route";
+import { TripRoutes } from "../modules/Trip/trip.route";
 // import { BuddyInvitationRoutes } from "../modules/BuddyInvitation/buddyInvitation.route";
 // import { BuddyRequestRoutes } from "../modules/BuddyRequest/buddyRequest.route";
 
@@ -17,10 +17,10 @@ const moduleRoutes = [
     path: "/users",
     route: UserRoutes,
   },
-  // {
-  //   path: "/trips",
-  //   route: TripRoutes,
-  // },
+  {
+    path: "/trips",
+    route: TripRoutes,
+  },
   // {
   //   path: "/travel-buddy-requests",
   //   route: BuddyRequestRoutes,
