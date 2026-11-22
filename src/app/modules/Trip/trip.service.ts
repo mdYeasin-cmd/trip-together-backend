@@ -1,6 +1,11 @@
 import { all, and, or, type Condition } from "@prisma/orm-postgres/orm-client";
 import { orm } from "../../../prisma/db";
-import { ITrip, ITripCreateData, TripCondition } from "./trip.interface";
+import {
+  ITrip,
+  ITripCreateData,
+  ITripUpdateData,
+  TripCondition,
+} from "./trip.interface";
 import { paginationHelper } from "../../utils/paginationHelper";
 import ApiError from "../../errors/ApiError";
 import httpStatus from "http-status";
@@ -139,7 +144,7 @@ const getATripFromDB = async (tripId: string) => {
 const updateATripIntoDB = async (
   userId: string,
   tripId: string,
-  data: Partial<ITripCreateData>,
+  data: ITripUpdateData,
 ) => {
   const trip = await orm.Trip.where((trip) => trip.isDeleted.eq(false)).first({
     id: tripId,

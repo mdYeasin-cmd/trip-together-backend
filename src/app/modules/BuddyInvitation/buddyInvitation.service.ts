@@ -2,7 +2,7 @@ import {
   TravelBuddyRequestStatus,
   TravelBuddyRequestType,
 } from "../../constants/travel-buddy-request";
-import prisma from "../../db/prisma";
+import { orm } from "../../../prisma/db";
 import ApiError from "../../errors/ApiError";
 import httpStatus from "http-status";
 
@@ -11,10 +11,8 @@ const getTravelBuddiesByTripIdFromDB = async (
   tripId: string,
 ) => {
   // only trip owner can see travel buddies requests associated with trip
-  const trip = await prisma.trip.findUnique({
-    where: {
-      id: tripId,
-    },
+  const trip = await orm.Trip.first({
+    id: tripId,
   });
 
   if (!trip) {
@@ -28,51 +26,26 @@ const getTravelBuddiesByTripIdFromDB = async (
     );
   }
 
-  const result = await prisma.travelBuddyRequest.findMany({
-    where: {
-      tripId,
-    },
-    include: {
-      user: {
-        select: {
-          id: true,
-          name: true,
-          email: true,
-        },
-      },
-    },
-  });
+  const result = await orm.TravelBuddyRequest.where({
+    tripId,
+  })
+    .include("user", (user) => user.select("id", "name", "email"))
+    .all();
 
   return result;
 };
 
 const sendTravelBuddyRequestIntoDB = async (tripId: string, userId: string) => {
   const [trip, user, existingRequest] = await Promise.all([
-    prisma.trip.findUnique({
-      where: {
-        id: tripId,
-      },
-      select: {
-        id: true,
-        userId: true,
-      },
+    orm.Trip.select("id", "userId").first({
+      id: tripId,
     }),
-    prisma.user.findUnique({
-      where: {
-        id: userId,
-      },
-      select: {
-        id: true,
-      },
+    orm.User.select("id").first({
+      id: userId,
     }),
-    prisma.travelBuddyRequest.findFirst({
-      where: {
-        tripId: tripId,
-        userId: userId,
-      },
-      select: {
-        id: true,
-      },
+    orm.TravelBuddyRequest.select("id").first({
+      tripId: tripId,
+      userId: userId,
     }),
   ]);
 
@@ -100,13 +73,11 @@ const sendTravelBuddyRequestIntoDB = async (tripId: string, userId: string) => {
     );
   }
 
-  const result = await prisma.travelBuddyRequest.create({
-    data: {
-      tripId,
-      userId: userId,
-      type: TravelBuddyRequestType.REQUEST,
-      status: TravelBuddyRequestStatus.PENDING,
-    },
+  const result = await orm.TravelBuddyRequest.create({
+    tripId,
+    userId: userId,
+    type: TravelBuddyRequestType.REQUEST,
+    status: TravelBuddyRequestStatus.PENDING,
   });
 
   return result;
@@ -119,28 +90,22 @@ const respondTravelBuddyRequestIntoDB = async (
     status: TravelBuddyRequestStatus;
   },
 ) => {
-  const tripRequest = await prisma.travelBuddyRequest.findUnique({
-    where: {
+  const tripRequest = await orm.TravelBuddyRequest.select(
+    "id",
+    "tripId",
+    "userId",
+    "status",
+  )
+    .include("trip", (trip) => trip.select("userId"))
+    .first({
       id: requestId,
-    },
-    select: {
-      id: true,
-      tripId: true,
-      userId: true,
-      status: true,
-      trip: {
-        select: {
-          userId: true,
-        },
-      },
-    },
-  });
+    });
 
   if (!tripRequest) {
     throw new ApiError(httpStatus.NOT_FOUND, "Travel buddy request not found.");
   }
 
-  if (tripRequest.trip.userId !== userId) {
+  if (tripRequest.trip?.userId !== userId) {
     throw new ApiError(
       httpStatus.FORBIDDEN,
       "You don't have permission to respond to this travel buddy request.",
@@ -154,23 +119,17 @@ const respondTravelBuddyRequestIntoDB = async (
     );
   }
 
-  const result = await prisma.travelBuddyRequest.update({
-    where: {
-      id: requestId,
-    },
-    data: {
-      status: data.status,
-    },
+  const result = await orm.TravelBuddyRequest.where({
+    id: requestId,
+  }).update({
+    status: data.status,
   });
 
   return result;
 };
 
 const getRequestEligibilityFromDB = async (tripId: string, userId: string) => {
-  const trip = await prisma.trip.findUnique({
-    where: { id: tripId },
-    select: { id: true, userId: true },
-  });
+  const trip = await orm.Trip.select("id", "userId").first({ id: tripId });
 
   if (!trip) {
     throw new ApiError(404, "Trip is not found.");
@@ -183,14 +142,9 @@ const getRequestEligibilityFromDB = async (tripId: string, userId: string) => {
     );
   }
 
-  const existingRequest = await prisma.travelBuddyRequest.findFirst({
-    where: {
-      tripId: tripId,
-      userId: userId,
-    },
-    select: {
-      status: true,
-    },
+  const existingRequest = await orm.TravelBuddyRequest.select("status").first({
+    tripId: tripId,
+    userId: userId,
   });
 
   if (!existingRequest) {
@@ -214,41 +168,29 @@ const getRequestEligibilityFromDB = async (tripId: string, userId: string) => {
 
 const getTravelBuddyRequestsFromDB = async (userId: string, tripId: string) => {
   // userId = trip creator userId
-  const trip = await prisma.trip.findFirst({
-    where: {
-      id: tripId,
-      userId: userId,
-    },
-    select: {
-      id: true,
-    },
+  const trip = await orm.Trip.select("id").first({
+    id: tripId,
+    userId: userId,
   });
 
   if (!trip) {
     throw new ApiError(httpStatus.NOT_FOUND, "Trip not found.");
   }
 
-  const travelBuddyRequests = await prisma.travelBuddyRequest.findMany({
-    where: {
+  const travelBuddyRequests = await orm.TravelBuddyRequest.select(
+    "id",
+    "userId",
+    "tripId",
+    "status",
+    "type",
+    "createdAt",
+  )
+    .include("user", (user) => user.select("id", "name", "email"))
+    .where({
       tripId: tripId,
       type: TravelBuddyRequestType.REQUEST,
-    },
-    select: {
-      id: true,
-      userId: true,
-      tripId: true,
-      status: true,
-      type: true,
-      createdAt: true,
-      user: {
-        select: {
-          id: true,
-          name: true,
-          email: true,
-        },
-      },
-    },
-  });
+    })
+    .all();
 
   return travelBuddyRequests;
 };
@@ -263,14 +205,9 @@ const inviteTravelBuddyIntoDB = async (
   }
 
   // userId = trip creator userId
-  const trip = await prisma.trip.findFirst({
-    where: {
-      id: tripId,
-      userId: userId,
-    },
-    select: {
-      id: true,
-    },
+  const trip = await orm.Trip.select("id").first({
+    id: tripId,
+    userId: userId,
   });
 
   if (!trip) {
@@ -280,27 +217,17 @@ const inviteTravelBuddyIntoDB = async (
     );
   }
 
-  const buddy = await prisma.user.findUnique({
-    where: {
-      id: userId,
-    },
-    select: {
-      id: true,
-    },
+  const buddy = await orm.User.select("id").first({
+    id: userId,
   });
 
   if (!buddy) {
     throw new ApiError(httpStatus.NOT_FOUND, "Traveler not found.");
   }
 
-  const existingRequest = await prisma.travelBuddyRequest.findFirst({
-    where: {
-      tripId,
-      userId: buddyId,
-    },
-    select: {
-      id: true,
-    },
+  const existingRequest = await orm.TravelBuddyRequest.select("id").first({
+    tripId,
+    userId: buddyId,
   });
 
   console.log(existingRequest, "existing request for invite");
@@ -312,23 +239,20 @@ const inviteTravelBuddyIntoDB = async (
     );
   }
 
-  const result = await prisma.travelBuddyRequest.create({
-    data: {
-      tripId,
-      userId: buddyId,
-      invitedById: userId,
-      type: TravelBuddyRequestType.INVITE,
-      status: TravelBuddyRequestStatus.PENDING,
-    },
-    select: {
-      id: true,
-      tripId: true,
-      userId: true,
-      invitedById: true,
-      type: true,
-      status: true,
-      createdAt: true,
-    },
+  const result = await orm.TravelBuddyRequest.select(
+    "id",
+    "tripId",
+    "userId",
+    "invitedById",
+    "type",
+    "status",
+    "createdAt",
+  ).create({
+    tripId,
+    userId: buddyId,
+    invitedById: userId,
+    type: TravelBuddyRequestType.INVITE,
+    status: TravelBuddyRequestStatus.PENDING,
   });
 
   return result;
@@ -340,32 +264,28 @@ const respondTravelBuddyInviteIntoDB = async (
   userId: string,
   status: TravelBuddyRequestStatus,
 ) => {
-  const result = await prisma.travelBuddyRequest.updateMany({
-    where: {
-      id: invitationId,
-      userId,
-      tripId,
-      type: TravelBuddyRequestType.INVITE,
-      status: TravelBuddyRequestStatus.PENDING,
-      isDeleted: false,
-    },
-    data: {
-      status: status,
-    },
+  const count = await orm.TravelBuddyRequest.where({
+    id: invitationId,
+    userId,
+    tripId,
+    type: TravelBuddyRequestType.INVITE,
+    status: TravelBuddyRequestStatus.PENDING,
+    isDeleted: false,
+  }).updateAndCount({
+    status: status,
   });
 
+  const result = { count };
+
   if (result?.count === 0) {
-    const invitation = await prisma.travelBuddyRequest.findUnique({
-      where: {
-        id: invitationId,
-      },
-      select: {
-        id: true,
-        status: true,
-        isDeleted: true,
-        userId: true,
-        tripId: true,
-      },
+    const invitation = await orm.TravelBuddyRequest.select(
+      "id",
+      "status",
+      "isDeleted",
+      "userId",
+      "tripId",
+    ).first({
+      id: invitationId,
     });
 
     if (!invitation || invitation?.isDeleted) {
