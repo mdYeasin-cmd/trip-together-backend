@@ -16,6 +16,8 @@ router.post(
 
 router.get("/", TripControllers.getAllTrips);
 
+router.get("/my-trips", auth(UserRole.TRAVELER), TripControllers.getMyTrips);
+
 router.get("/:tripId", TripControllers.getATrip);
 
 router.patch(

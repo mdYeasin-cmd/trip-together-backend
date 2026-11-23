@@ -177,10 +177,22 @@ const deleteATripFromDB = async (userId: string, tripId: string) => {
   return result;
 };
 
+const getMyTripsFromDB = async (userId: string) => {
+  const trips = await orm.Trip.where({
+    userId: userId,
+  })
+    .where((trip) => trip.isDeleted.eq(false))
+    .include("user", (user) => user.select("id", "name", "email"))
+    .all();
+
+  return trips;
+};
+
 export const TripServices = {
   createATripIntoDB,
   getAllTripsFromDB,
   getATripFromDB,
   updateATripIntoDB,
   deleteATripFromDB,
+  getMyTripsFromDB,
 };

@@ -6,34 +6,30 @@ import { TravelBuddyValidators } from "./buddyInvitation.validator";
 
 const router = express.Router();
 
-/* 
-  =========== Invitations by trip creator ===========
-*/
+router.get(
+  "/eligibility/:tripId",
+  auth(),
+  BuddyInvitationControllers.getInvitationEligibility,
+);
 
-// travel buddy invite by trip creator
+router.get("/history", auth(), BuddyInvitationControllers.getInvitationHistory);
+
 router.post(
-  "/trips/:tripId",
+  "/:tripId",
   auth(),
   validatedRequest(TravelBuddyValidators.inviteTravelBuddyValidationSchema),
   BuddyInvitationControllers.inviteTravelBuddy,
 );
 
-// travel buddy invitaion respond by traveler
+router.get("/:tripId", auth(), BuddyInvitationControllers.getTripInvitations);
+
 router.patch(
-  "/invitations/:invitationId/respond",
+  "/:invitationId/respond",
   auth(),
   validatedRequest(
     TravelBuddyValidators.respondTravelBuddyInviteValidationSchema,
   ),
   BuddyInvitationControllers.respondTravelBuddyInvite,
 );
-
-// travel buddy invition get by trip creator
-// router.get(
-//   "/invitations/:tripId",
-//   auth(),
-//   validatedRequest(TravelBuddyValidators.inviteTravelBuddyValidationSchema),
-//   BuddyInvitationControllers.inviteTravelBuddy,
-// );
 
 export const BuddyInvitationRoutes = router;
