@@ -4,7 +4,7 @@ import sendResponse from "../../utils/sendResponse";
 import { Request, Response } from "express";
 import { UserServices } from "./user.service";
 import pick from "../../utils/pick";
-import { UserRole } from "@prisma/client";
+import { UserRole } from "../../constants/user-role";
 
 const registerTraveller = catchAsync(async (req: Request, res: Response) => {
   const data = req.body;

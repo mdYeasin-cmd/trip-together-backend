@@ -9,3 +9,11 @@ docker-run.sh
 Dockerfile
 Dockerfile.single
 .dockerignore
+node_modules/
+dist/
+
+# agent skills
+.agents
+.claude
+.cursor
+.devin

@@ -1,23 +1,17 @@
-import { User, UserRole, UserStatus } from "@prisma/client";
-import prisma from "../../db/prisma";
 import ApiError from "../../errors/ApiError";
 import httpStatus from "http-status";
 import { IUserData } from "./user.interface";
 import { bcryptHelpers } from "../../utils/bcryptHelpers";
+import { db, orm } from "../../../prisma/db";
+import { UserRole } from "../../constants/user-role";
+import { UserStatus } from "../../constants/user-status";
 
-const registerTravellerIntoDB = async (
-  data: IUserData,
-): Promise<Partial<User>> => {
-  // system initialization check
-  const superAdmin = await prisma.user.findFirst({
-    where: {
-      role: UserRole.SUPER_ADMIN,
-      status: UserStatus.ACTIVE,
-      isDeleted: false,
-    },
-    select: {
-      id: true,
-    },
+// system initialization check
+const ensureSystemInitialized = async () => {
+  const superAdmin = await orm.User.select("id").first({
+    role: UserRole.SUPER_ADMIN,
+    status: UserStatus.ACTIVE,
+    isDeleted: false,
   });
 
   if (!superAdmin) {
@@ -26,74 +20,49 @@ const registerTravellerIntoDB = async (
       "System is not initialized. Please contact with super admin.",
     );
   }
+};
+
+const registerTravellerIntoDB = async (data: IUserData) => {
+  await ensureSystemInitialized();
 
   const { name, email, password } = data;
 
-  const existingUser = await prisma.user.findUnique({
-    where: {
-      email: data.email,
-    },
-  });
+  const existingUser = await orm.User.select("id").first({ email });
 
   if (existingUser) {
-    throw new ApiError(httpStatus.CONFLICT, "Traveller already exists.");
+    throw new ApiError(httpStatus.CONFLICT, "Traveler already exists.");
   }
 
   const hashedPassword = await bcryptHelpers.hashPassword(password);
 
-  const userData = {
-    name,
-    email,
-    password: hashedPassword,
-    role: UserRole.TRAVELER,
-  };
+  const result = await db.transaction(async (tx) => {
+    const txOrm = tx.orm.public;
 
-  const result = await prisma.$transaction(async (transactionClient) => {
-    const user = await transactionClient.user.create({
-      data: userData,
+    const user = await txOrm.User.create({
+      name,
+      email,
+      password: hashedPassword,
+      role: UserRole.TRAVELER,
     });
 
-    await transactionClient.userProfile.create({
-      data: {
-        userId: user.id,
-      },
+    await txOrm.UserProfile.create({
+      userId: user.id,
     });
 
     return user;
   });
 
-  const { password: p, ...restUserData } = result;
+  const { password: _password, ...restUserData } = result;
 
   return restUserData;
 };
 
-const createAdminIntoDB = async (data: IUserData): Promise<Partial<User>> => {
-  // system initialization check
-  const superAdmin = await prisma.user.findFirst({
-    where: {
-      role: UserRole.SUPER_ADMIN,
-      status: UserStatus.ACTIVE,
-      isDeleted: false,
-    },
-    select: {
-      id: true,
-    },
-  });
-
-  if (!superAdmin) {
-    throw new ApiError(
-      httpStatus.SERVICE_UNAVAILABLE,
-      "System is not initialized. Please contact with super admin.",
-    );
-  }
+const createAdminIntoDB = async (data: IUserData) => {
+  await ensureSystemInitialized();
 
   const { name, email, password } = data;
 
-  const existingUser = await prisma.user.findUnique({
-    where: {
-      email: data.email,
-    },
-  });
+  const existingUser = await orm.User.select("id").first({ email });
 
   if (existingUser) {
     throw new ApiError(httpStatus.CONFLICT, "Admin already exists.");
@@ -101,108 +70,82 @@ const createAdminIntoDB = async (data: IUserData): Promise<Partial<User>> => {
 
   const hashedPassword = await bcryptHelpers.hashPassword(password);
 
-  const userData = {
-    name,
-    email,
-    password: hashedPassword,
-    role: UserRole.ADMIN,
-  };
+  const result = await db.transaction(async (tx) => {
+    const txOrm = tx.orm.public;
 
-  const result = await prisma.$transaction(async (transactionClient) => {
-    const user = await transactionClient.user.create({
-      data: userData,
+    const user = await txOrm.User.create({
+      name,
+      email,
+      password: hashedPassword,
+      role: UserRole.ADMIN,
     });
 
-    await transactionClient.userProfile.create({
-      data: {
-        userId: user.id,
-      },
+    await txOrm.UserProfile.create({
+      userId: user.id,
     });
 
     return user;
   });
 
-  const { password: p, ...restUserData } = result;
+  const { password: _password, ...restUserData } = result;
 
   return restUserData;
 };
 
-const getMyProfileFromDB = async (userId: string): Promise<Partial<User>> => {
-  const result = await prisma.user.findUniqueOrThrow({
-    where: { id: userId },
-  });
+const getMyProfileFromDB = async (userId: string) => {
+  const result = await orm.User.firstOrThrow({ id: userId });
 
   const { password, ...restUserData } = result;
 
   return restUserData;
 };
 
-const getAllUsersFromDB = async (
-  role: UserRole,
-): Promise<
-  Pick<User, Exclude<keyof User, "password" | "needPasswordChange">>[]
-> => {
-  let result: Omit<User, "password" | "needPasswordChange">[];
+const getAllUsersFromDB = async (role: UserRole) => {
+  const userListFields = [
+    "id",
+    "name",
+    "email",
+    "role",
+    "status",
+    "isDeleted",
+    "createdAt",
+    "updatedAt",
+  ] as const;
+
+  let result;
 
   if (role === UserRole.ADMIN || role === UserRole.TRAVELER) {
-    result = await prisma.user.findMany({
-      where: {
+    result = await orm.User.select(...userListFields)
+      .where({
         role: UserRole.TRAVELER,
         isDeleted: false,
-      },
-      orderBy: {
-        createdAt: "desc",
-      },
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        role: true,
-        status: true,
-        isDeleted: true,
-        createdAt: true,
-        updatedAt: true,
-      },
-    });
+      })
+      .orderBy((u) => u.createdAt.desc())
+      .all();
   } else {
-    result = await prisma.user.findMany({
-      where: {
-        role: {
-          not: UserRole.SUPER_ADMIN,
-        },
-        isDeleted: false,
-      },
-      orderBy: {
-        createdAt: "desc",
-      },
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        role: true,
-        status: true,
-        isDeleted: true,
-        createdAt: true,
-        updatedAt: true,
-      },
-    });
+    result = await orm.User.select(...userListFields)
+      .where({ isDeleted: false })
+      .where((u) => u.role.neq(UserRole.SUPER_ADMIN))
+      .orderBy((u) => u.createdAt.desc())
+      .all();
   }
 
   return result;
 };
 
 const getAUserFromDB = async (userId: string) => {
-  const user = await prisma.user.findUnique({
-    where: { id: userId },
-    select: {
-      id: true,
-      name: true,
-      email: true,
-      role: true,
-      status: true,
-      createdAt: true,
-    },
-  });
+  const userFields = [
+    "id",
+    "name",
+    "email",
+    "role",
+    "status",
+    "isDeleted",
+    "createdAt",
+    "updatedAt",
+  ] as const;
+
+  const user = await orm.User.select(...userFields).first({ id: userId });
 
   if (!user) {
     throw new ApiError(httpStatus.NOT_FOUND, "Traveler not found.");
@@ -215,10 +158,8 @@ const chnageUserStatusIntoDB = async (data: {
   userId: string;
   status: UserStatus;
 }) => {
-  const user = await prisma.user.findUnique({
-    where: {
-      id: data.userId,
-    },
+  const user = await orm.User.select("id", "status").first({
+    id: data.userId,
   });
 
   if (!user) {
@@ -232,30 +173,28 @@ const chnageUserStatusIntoDB = async (data: {
     );
   }
 
-  const result = await prisma.user.update({
-    where: {
-      id: data.userId,
-    },
-    data: {
-      status: data.status,
-    },
+  const result = await orm.User.where({ id: data.userId }).update({
+    status: data.status,
   });
 
-  return result;
+  if (!result) {
+    throw new ApiError(httpStatus.NOT_FOUND, "User doesn't exist.");
+  }
+
+  const { password, ...restUserData } = result;
+
+  return restUserData;
 };
 
 const updateMyProfileIntoDB = async (
   userId: string,
-  data: Partial<User>,
-): Promise<Partial<User>> => {
-  await prisma.user.findUniqueOrThrow({
-    where: { id: userId },
-  });
+  data: Partial<Pick<IUserData, "name" | "email">>,
+) => {
+  const result = await orm.User.where({ id: userId }).update(data);
 
-  const result = await prisma.user.update({
-    where: { id: userId },
-    data,
-  });
+  if (!result) {
+    throw new ApiError(httpStatus.NOT_FOUND, "User doesn't exist.");
+  }
 
   const { password, ...restUserData } = result;
 

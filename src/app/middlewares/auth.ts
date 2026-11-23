@@ -4,7 +4,7 @@ import ApiError from "../errors/ApiError";
 import httpStatus from "http-status";
 import { jwtHelpers } from "../utils/jwtHelpers";
 import config from "../config";
-import prisma from "../db/prisma";
+import { orm } from "../../prisma/db";
 
 const auth = (...roles: string[]) => {
   return async (req: Request, res: Response, next: NextFunction) => {
@@ -20,10 +20,8 @@ const auth = (...roles: string[]) => {
         config.jwt_secret as Secret
       );
 
-      const user = await prisma.user.findUnique({
-        where: {
-          id: verifiedUser.id,
-        },
+      const user = await orm.User.select("id").first({
+        id: verifiedUser.id,
       });
 
       if (!user) {

@@ -1,0 +1,28 @@
+// use prisma-8
+enum TravelBuddyRequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum TravelBuddyRequestType {
+  REQUEST
+  INVITE
+}
+
+enum UserRole {
+  SUPER_ADMIN
+  ADMIN
+  TRAVELER
+}
+
+enum UserStatus {
+  ACTIVE
+  BLOCKED
+  DELETED
+}
+
+enum Gender {
+  MALE
+  FEMALE
+}

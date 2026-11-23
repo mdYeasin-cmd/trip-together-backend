@@ -1,14 +1,20 @@
-import { Prisma } from "@prisma/client";
+import type { StructuredError } from "@prisma/orm-postgres/utils/structured-error";
+import httpStatus from "http-status";
 
-const handleClientError = (error: Prisma.PrismaClientKnownRequestError) => {
-  const statusCode = 404;
-  let message;
-  let errorDetails;
+const handleClientError = (error: StructuredError) => {
+  let statusCode: number = httpStatus.BAD_REQUEST;
+  let message = error.message;
 
-  if (error.code === "P2025") {
-    message = (error.meta?.cause as string) || "Record not found!";
-    errorDetails = error;
+  if (error.code === "RUNTIME.NO_ROWS") {
+    statusCode = httpStatus.NOT_FOUND;
+    message = "Record not found!";
   }
+
+  const errorDetails = {
+    code: error.code,
+    why: error.why,
+    meta: error.meta,
+  };
 
   return {
     statusCode,

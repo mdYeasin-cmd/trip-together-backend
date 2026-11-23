@@ -19,7 +19,7 @@ app.use(logger);
 app.use("/api/v1", router);
 
 // test route
-app.get("/", (req: Request, res: Response) => {
+app.get("/", async (req: Request, res: Response) => {
   res.send({
     message: "Travel Buddy Finder server is running...",
   });
