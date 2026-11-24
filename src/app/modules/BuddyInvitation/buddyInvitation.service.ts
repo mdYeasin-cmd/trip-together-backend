@@ -188,6 +188,7 @@ const getTripInvitationsFromDB = async (userId: string, tripId: string) => {
     "status",
     "type",
     "createdAt",
+    "updatedAt",
   )
     .include("user", (user) => user.select("id", "name", "email"))
     .where({
@@ -209,7 +210,16 @@ const getInvitationHistoryFromDB = async (userId: string) => {
     "type",
     "createdAt",
   )
-    .include("trip", (trip) => trip.select("id"))
+    .include("trip", (trip) =>
+      trip.select(
+        "id",
+        "destination",
+        "travelType",
+        "budget",
+        "startDate",
+        "endDate",
+      ),
+    )
     .where({
       userId: userId,
       type: TravelBuddyRequestType.INVITE,

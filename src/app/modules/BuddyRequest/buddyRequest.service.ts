@@ -98,16 +98,17 @@ const getRequestEligibilityFromDB = async (tripId: string, userId: string) => {
     };
   }
 
-  if (existingRequest.status === "PENDING") {
-    throw new ApiError(httpStatus.CONFLICT, "Request already pending.");
-  }
+  // if (existingRequest.status === "PENDING") {
+  //   throw new ApiError(httpStatus.CONFLICT, "Request already pending.");
+  // }
 
-  if (existingRequest.status === "APPROVED") {
-    throw new ApiError(httpStatus.CONFLICT, "Already joined this trip.");
-  }
+  // if (existingRequest.status === "APPROVED") {
+  //   throw new ApiError(httpStatus.CONFLICT, "Already joined this trip.");
+  // }
 
   return {
-    eligible: true,
+    eligible: false,
+    status: existingRequest.status,
   };
 };
 
@@ -174,6 +175,7 @@ const getBuddyRequestsFromDB = async (userId: string, tripId: string) => {
     "status",
     "type",
     "createdAt",
+    "updatedAt",
   )
     .include("user", (user) => user.select("id", "name", "email"))
     .where({
